@@ -26,7 +26,7 @@ namespace CalamityTweaks.Enemies
 		{
 			NPC.width = 365;
 			NPC.height = 236;
-			NPC.damage = (int)(targetDamage_nonPredictiveCharge * targetDamage_mult);
+			NPC.damage = (int)(targetDamage_nonPredictiveCharge * targetDamage_mult * 4);
 			NPC.defense = 150;
 			NPC.lifeMax = 3000000;
 			NPC.knockBackResist = 0;			
@@ -52,7 +52,8 @@ namespace CalamityTweaks.Enemies
             else TransitionToPhase(4);
 
             currentAttackTickCounter++;
-			NonPredictiveCharge(80);
+			//NonPredictiveCharge(80);
+			WaterBoltAttack(20, 20, 10);
         }
 
 		private void TransitionToPhase(int phase)
@@ -93,6 +94,32 @@ namespace CalamityTweaks.Enemies
 			if (currentAttackTickCounter == targetTickDuration) currentAttackTickCounter = -1;
         }
 
+		private void WaterBoltAttack(int boltCount, float maxSpreadDegrees, int ticksPerBolt)
+		{
+			int fullAttackDuration = ticksPerBolt * (boltCount-1);
+			if (currentAttackTickCounter > fullAttackDuration)
+			{
+				currentAttackTickCounter = -1;
+				return;
+			}
+
+			if (currentAttackTickCounter % ticksPerBolt == 0)
+			{
+                if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
+                {
+                    var source = NPC.GetSource_FromAI();
+                    Vector2 position = NPC.Center;
+                    Vector2 targetPosition = Main.player[NPC.target].Center;
+                    Vector2 direction = targetPosition - position;
+                    direction.Normalize();
+                    float speed = 10f;
+                    int type = ProjectileID.PinkLaser;
+					int damage = (int)(targetDamage_supremeWaterBolt_contact * 2 * targetDamage_mult);
+                    Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
+                }
+            }
+		}
+
         private void Talk(string message)
         {
             if (Main.netMode != NetmodeID.Server)
@@ -112,7 +139,7 @@ namespace CalamityTweaks.Enemies
         private int currBossPhase = -1;
         private int prevBossPhase = -2;
         private int ticksInCurrentPhase = 0;
-		private int currentAttackTickCounter = -1;
+		private int currentAttackTickCounter = -1; //how much ticks from beginning of last attack. Reset it to -1 when attack is completed
 
 		private Vector2 currentChargeVelocity;
 
@@ -126,6 +153,6 @@ namespace CalamityTweaks.Enemies
 		private static float targetDamage_steamBreath = 1080;
 		private static float targetDamage_waterDeathhail = 840;
 		private static float targetDamage_predictiveWaterArrow = 910;
-		private static float targetDamage_mult = 250.0f / 1250;
+		private static float targetDamage_mult = 125.0f / 1250;
     }
 }

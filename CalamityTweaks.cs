@@ -24,8 +24,8 @@ namespace CalamityTweaks.Enemies
 
 		public override void SetDefaults()
 		{
-			NPC.width = 602;
-			NPC.height = 360;
+			NPC.width = 365;
+			NPC.height = 236;
 			NPC.damage = (int)(targetDamage_nonPredictiveCharge * targetDamage_mult);
 			NPC.defense = 150;
 			NPC.lifeMax = 3000000;
@@ -36,20 +36,23 @@ namespace CalamityTweaks.Enemies
             NPC.boss = true;
             NPC.noGravity = true;
             NPC.lavaImmune = true;
-            NPC.noTileCollide = true;
-
-			
+            NPC.noTileCollide = true;			
         }
 
 		public override void AI()
 		{
 			NPC.TargetClosestUpgraded();
+			ticksInCurrentPhase++;
+
 			float lifePct = NPC.GetLifePercent();
 
 			if (lifePct > 0.60) TransitionToPhase(1);
 			else if (lifePct > 0.30) TransitionToPhase(2);
             //TODO: implement: if clones are alive, enter phase 3
             else TransitionToPhase(4);
+
+            currentAttackTickCounter++;
+			NonPredictiveCharge(80);
         }
 
 		private void TransitionToPhase(int phase)
@@ -69,8 +72,18 @@ namespace CalamityTweaks.Enemies
 		}
 		private void NonPredictiveCharge(int targetTickDuration)
 		{
-			//Vector2 targetPos = Main.player
-		}
+			if (currentAttackTickCounter == 0)
+			{
+				Vector2 targetPos = Main.player[NPC.target].position;
+				Vector2 dir = targetPos - NPC.position;
+				this.currentChargeVelocity = dir * 10f / targetTickDuration;
+			}
+
+			if (currentAttackTickCounter < targetTickDuration / 3 || currentAttackTickCounter > 1 - targetTickDuration / 3) NPC.velocity = Vector2.Zero;
+			else NPC.velocity = this.currentChargeVelocity;
+
+			if (currentAttackTickCounter == targetTickDuration) currentAttackTickCounter = -1;
+        }
 
         private void Talk(string message)
         {
@@ -91,6 +104,9 @@ namespace CalamityTweaks.Enemies
         private int currBossPhase = -1;
         private int prevBossPhase = -2;
         private int ticksInCurrentPhase = 0;
+		private int currentAttackTickCounter = -1;
+
+		private Vector2 currentChargeVelocity;
 
 		//These are target damage values for Master Death mode. 
 		private static float targetDamage_nonPredictiveCharge = 1250;

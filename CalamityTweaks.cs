@@ -30,7 +30,7 @@ namespace CalamityTweaks.Enemies
 			NPC.defense = 150;
 			NPC.lifeMax = 3000000;
 			NPC.knockBackResist = 0;			
-			NPC.value = 100 * 100 * 100 * 100; //100 platinum. TODO: remove magic number
+			NPC.value = Item.buyPrice(platinum: 50);
 			NPC.aiStyle = -1;
 
             NPC.boss = true;

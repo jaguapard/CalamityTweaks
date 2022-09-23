@@ -1,0 +1,3 @@
+displayName = Calamity Tweaks
+author = groomyjohny
+version = 0.1

@@ -64,7 +64,7 @@ namespace CalamityTweaks.Enemies
 			{
 				ticksInCurrentPhase = 0;
 
-				if (phase == 1) Talk("Long have I waited for this. I heard rumors about you. Nobody took me seriously, they kept laughing at me, saying I'm a weakling mini-boss! Now, I will prove everyone wrong by defeating you!");
+				if (phase == 1) Talk("Long have I waited for this. I've heard rumors about you. Nobody took me seriously, they kept laughing at me, saying I'm a weakling mini-boss! Now, I will prove everyone wrong by defeating you!");
 				if (phase == 2) Talk("Your performance is surprising. Given how much I worked on myself, you are a powerful opponent. I can respect that, but I have a few tricks too.");
 				if (phase == 3) Talk("Alright, I'll leave fighting to little ones for now");
 				if (phase == 4) Talk("NOOO! I just can't die like this!");
@@ -72,14 +72,22 @@ namespace CalamityTweaks.Enemies
 		}
 		private void NonPredictiveCharge(int targetTickDuration)
 		{
-			if (currentAttackTickCounter == 0)
+			int idleTicks = targetTickDuration / 3;
+
+            if (currentAttackTickCounter == idleTicks)
 			{
-				Vector2 targetPos = Main.player[NPC.target].position;
-				Vector2 dir = targetPos - NPC.position;
-				this.currentChargeVelocity = dir * 10f / targetTickDuration;
+				Vector2 targetPos = Main.player[NPC.target].Center;
+				Vector2 dir = targetPos - NPC.Center;
+				Vector2 unitDir = dir.SafeNormalize(Vector2.Zero);
+
+				float dirLen = dir.Length();
+				Vector2 chargeTargetPoint = NPC.Center + unitDir * Math.Min(dirLen + 400, 1800);
+
+				int chargeTickDuration = targetTickDuration / 3;
+				this.currentChargeVelocity = (chargeTargetPoint - NPC.Center) / chargeTickDuration;
 			}
 
-			if (currentAttackTickCounter < targetTickDuration / 3 || currentAttackTickCounter > 1 - targetTickDuration / 3) NPC.velocity = Vector2.Zero;
+			if (currentAttackTickCounter < idleTicks || currentAttackTickCounter > targetTickDuration - idleTicks) NPC.velocity = Vector2.Zero;
 			else NPC.velocity = this.currentChargeVelocity;
 
 			if (currentAttackTickCounter == targetTickDuration) currentAttackTickCounter = -1;
@@ -118,6 +126,6 @@ namespace CalamityTweaks.Enemies
 		private static float targetDamage_steamBreath = 1080;
 		private static float targetDamage_waterDeathhail = 840;
 		private static float targetDamage_predictiveWaterArrow = 910;
-		private static float targetDamage_mult = 350.0f / 1250;
+		private static float targetDamage_mult = 250.0f / 1250;
     }
 }

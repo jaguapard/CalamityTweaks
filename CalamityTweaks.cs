@@ -3,7 +3,7 @@ using System;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using Terraria.ID;
-using System;
+using System.Collections.Generic;
 
 namespace CalamityTweaks
 {
@@ -21,8 +21,6 @@ namespace CalamityTweaks.Enemies
 		{
 			DisplayName.SetDefault("Supreme Cnidrion");			
 		}
-
-		//public int GetDamageFromMasterDeathTarget(int targetDamage, bool isContactDamage = true)
 
 		public override void SetDefaults()
 		{
@@ -43,8 +41,7 @@ namespace CalamityTweaks.Enemies
 
 		public override void AI()
 		{
-			NPC.TargetClosestUpgraded();
-            NPC.damage = targetDamage_nonPredictiveCharge; //reset damage in case it gets interrupted from predictive charge attack that reduces damage
+            NPC.TargetClosestUpgraded();
             this.targetPlayer = Main.player[NPC.target];
             ticksInCurrentPhase++;
 
@@ -62,6 +59,8 @@ namespace CalamityTweaks.Enemies
 			if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
 			else if (currentPatternTick < 520) WaterBoltAttack(50, (float)(20*Math.PI/180), 4);
 			else if (currentPatternTick < 700) ChargeAttack(90, true);
+
+            ticksSinceSpawn++;
         }
 
 		protected void SetTargetPhase(int phase)
@@ -77,13 +76,16 @@ namespace CalamityTweaks.Enemies
 				if (phase == 2)
 				{
 					Talk("Your performance is surprising. Given how much I worked on myself, you are a powerful opponent. I can respect that, but I have a few tricks too.");
-					for (int i = 0; i < 3; ++i)
+					if (Main.netMode != NetmodeID.MultiplayerClient)
 					{
-						NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 100, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1);
+						for (int i = 0; i < 3; ++i)
+						{
+							spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 100, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i, ai1: NPC.netID));
+						}
 					}
 				}
-				if (phase == 3) Talk("Alright, I'll leave fighting to little ones for now");
-				if (phase == 4) Talk("NOOO! I just can't die like this!");
+				if (phase == 3) Talk("Alright, I'll leave fighting to the little ones for now");
+				if (phase == 4) Talk("Time to get serious!");
 			}
 		}
 		protected void ChargeAttack(int targetTickDuration, bool predictive = false)
@@ -107,15 +109,17 @@ namespace CalamityTweaks.Enemies
 			else
 			{
 				NPC.velocity = this.currentChargeVelocity;
-				if (predictive) NPC.damage = targetDamage_predictiveCharge;
             }
 
-			if (currentAttackTickCounter == targetTickDuration) currentAttackTickCounter = 0;
+			if (currentAttackTickCounter == targetTickDuration)
+			{
+                currentAttackTickCounter = 0;
+			}
         }
 
 		protected void WaterBoltAttack(int boltCount, float maxSpreadRadians, int ticksPerBolt)
 		{
-			if (currentAttackTickCounter <= 1) NPC.velocity = Vector2.Zero;
+			NPC.velocity = Vector2.Zero;
 
 			int fullAttackDuration = ticksPerBolt * (boltCount-1);
 			if (currentAttackTickCounter > fullAttackDuration)
@@ -171,6 +175,8 @@ namespace CalamityTweaks.Enemies
         protected int prevBossPhase = -2;
         protected int ticksInCurrentPhase = 0;
 		protected int currentAttackTickCounter = 0; //how much ticks from beginning of last attack. Reset it to 0 when attack is completed
+		protected int ticksSinceSpawn = 0;
+		protected List<int> spawns = new List<int>();
 
 		protected Vector2 currentChargeVelocity;
 
@@ -188,8 +194,12 @@ namespace CalamityTweaks.Enemies
 		protected static int targetDamage_predictiveWaterArrow = (int)(910 * 0.2);
     }
 
-	public class SupremeCnidrionClone : SupremeCnidrion
+    [AutoloadBossHead]
+    public class SupremeCnidrionClone : SupremeCnidrion
 	{
+        protected float orbitRadianOffset;
+		protected NPC ownerNpc = null;
+
         public override void SetStaticDefaults()
         {
             DisplayName.SetDefault("Supreme Cnidrion Spawn");
@@ -198,7 +208,8 @@ namespace CalamityTweaks.Enemies
         {
             NPC.width = 365/2;
             NPC.height = 236/2;
-            NPC.damage = (int)(850*0.4);
+			//NPC.damage = (int)(850*0.4);
+			NPC.damage = 0;
             NPC.defense = 110;
             NPC.lifeMax = 350000;
             NPC.knockBackResist = 0;
@@ -209,18 +220,31 @@ namespace CalamityTweaks.Enemies
             NPC.noGravity = true;
             NPC.lavaImmune = true;
             NPC.noTileCollide = true;
+
+			//ticksInCurrentPhase = (int)(NPC.ai[0] * 100);
+			orbitRadianOffset = NPC.ai[0] * 120.0f * (float)Math.PI / 180.0f;			
         }
 
         public override void AI()
         {
+			if (ownerNpc == null) ownerNpc = Main.npc[(int)NPC.ai[1]];
+
             NPC.TargetClosestUpgraded();
             this.targetPlayer = Main.player[NPC.target];
-            
+
+			ticksInCurrentPhase++;            
             currentAttackTickCounter++;
             int patternDurationTicks = 700; //TODO: decouple spawn's patterns
             int currentPatternTick = ticksInCurrentPhase % patternDurationTicks;
 
-            if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
+			int orbitTick = ticksSinceSpawn % 600;
+			float currentAngle = orbitRadianOffset + orbitTick / 300.0f * (float)Math.PI;
+			this.NPC.position = ownerNpc.position + new Vector2(400.0f * (float)Math.Sin(currentAngle), 400.0f * (float)Math.Cos(currentAngle));
+			ticksSinceSpawn++;
+            //if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
+
         }
     }
+
+	
 }

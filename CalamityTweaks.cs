@@ -42,6 +42,8 @@ namespace CalamityTweaks.Enemies
 		public override void AI()
 		{
             NPC.TargetClosestUpgraded(true);
+			if (!NPC.HasValidTarget) this.NPC.velocity.Y += 1;
+
 			NPC.FaceTarget();
             this.targetPlayer = Main.player[NPC.target];
             ticksInCurrentPhase++;
@@ -57,13 +59,18 @@ namespace CalamityTweaks.Enemies
 			int patternDurationTicks = 700;
 			int currentPatternTick = ticksInCurrentPhase % patternDurationTicks;
 
-			if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
-			else if (currentPatternTick < 520) WaterBoltAttack(50, (float)(20*Math.PI/180), 4);
-			else if (currentPatternTick < 700) ChargeAttack(90, true);
+			if (NPC.HasValidTarget)
+			{
+				if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
+				else if (currentPatternTick < 520) WaterBoltAttack(50, (float)(20 * Math.PI / 180), 4);
+				else if (currentPatternTick < 700) ChargeAttack(90, true);
+			}
 
             int orbitTick = ticksSinceSpawn % 600;
 			for (int i = 0; i < spawns.Count; ++i) //TODO: add Spawn death handling
 			{
+				if (Main.npc[spawns[i]].netID != ModContent.NPCType<SupremeCnidrionClone>()) continue;
+
 				float currentAngle = 2*i * (float)Math.PI / 3.0f + orbitTick / 300.0f * (float)Math.PI;
 				Main.npc[spawns[i]].position = this.NPC.position + new Vector2(400.0f * (float)Math.Sin(currentAngle), 400.0f * (float)Math.Cos(currentAngle));
 			}

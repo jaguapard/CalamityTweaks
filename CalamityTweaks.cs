@@ -108,7 +108,7 @@ namespace CalamityTweaks.Enemies
 
 		private void WaterBoltAttack(int boltCount, float maxSpreadRadians, int ticksPerBolt)
 		{
-			if (currentAttackTickCounter < 1) NPC.velocity = Vector2.Zero;
+			if (currentAttackTickCounter <= 1) NPC.velocity = Vector2.Zero;
 
 			int fullAttackDuration = ticksPerBolt * (boltCount-1);
 			if (currentAttackTickCounter > fullAttackDuration)

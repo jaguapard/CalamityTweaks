@@ -60,6 +60,13 @@ namespace CalamityTweaks.Enemies
 			else if (currentPatternTick < 520) WaterBoltAttack(50, (float)(20*Math.PI/180), 4);
 			else if (currentPatternTick < 700) ChargeAttack(90, true);
 
+            int orbitTick = ticksSinceSpawn % 600;
+			for (int i = 0; i < spawns.Count; ++i)
+			{
+				float currentAngle = 2 * (float)Math.PI / 3.0f + orbitTick / 300.0f * (float)Math.PI;
+				Main.npc[spawns[i]].position = this.NPC.position + new Vector2(400.0f * (float)Math.Sin(currentAngle), 400.0f * (float)Math.Cos(currentAngle));
+			}
+
             ticksSinceSpawn++;
         }
 
@@ -80,7 +87,7 @@ namespace CalamityTweaks.Enemies
 					{
 						for (int i = 0; i < 3; ++i)
 						{
-							spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 100, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i, ai1: NPC.netID));
+							spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 100, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i));
 						}
 					}
 				}
@@ -227,8 +234,6 @@ namespace CalamityTweaks.Enemies
 
         public override void AI()
         {
-			if (ownerNpc == null) ownerNpc = Main.npc[(int)NPC.ai[1]];
-
             NPC.TargetClosestUpgraded();
             this.targetPlayer = Main.player[NPC.target];
 
@@ -237,9 +242,6 @@ namespace CalamityTweaks.Enemies
             int patternDurationTicks = 700; //TODO: decouple spawn's patterns
             int currentPatternTick = ticksInCurrentPhase % patternDurationTicks;
 
-			int orbitTick = ticksSinceSpawn % 600;
-			float currentAngle = orbitRadianOffset + orbitTick / 300.0f * (float)Math.PI;
-			this.NPC.position = ownerNpc.position + new Vector2(400.0f * (float)Math.Sin(currentAngle), 400.0f * (float)Math.Cos(currentAngle));
 			ticksSinceSpawn++;
             //if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
 

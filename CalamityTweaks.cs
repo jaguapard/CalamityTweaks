@@ -42,7 +42,7 @@ namespace CalamityTweaks.Enemies
 		public override void AI()
 		{
             NPC.TargetClosestUpgraded(true);
-			if (!NPC.HasValidTarget) this.NPC.velocity.Y += 1;
+			if (!NPC.HasValidTarget) this.NPC.velocity.Y += 1f;
 
 			NPC.FaceTarget();
             this.targetPlayer = Main.player[NPC.target];
@@ -56,7 +56,7 @@ namespace CalamityTweaks.Enemies
             else SetTargetPhase(4);
 
             currentAttackTickCounter++;
-			int patternDurationTicks = 700;
+			int patternDurationTicks = 860;
 			int currentPatternTick = ticksInCurrentPhase % patternDurationTicks;
 
 			if (NPC.HasValidTarget)
@@ -64,6 +64,7 @@ namespace CalamityTweaks.Enemies
 				if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, 0.0f);
 				else if (currentPatternTick < 520) WaterBoltAttack(50, (float)(20 * Math.PI / 180), 4);
 				else if (currentPatternTick < 700) ChargeAttack(90, 1.5f);
+				else if (currentPatternTick < 860) WaterDeathHailAttack(0.1f, 0.7f, 3, 80, 40);
 			}
 
             int orbitTick = ticksSinceSpawn % 600;
@@ -168,6 +169,43 @@ namespace CalamityTweaks.Enemies
                 }
             }
 		}
+
+		protected void WaterDeathHailAttack(float safeSpaceSize, float maxFirstRoll, int ticksPerBolt, int boltCount, int delayTicks) //boltCount must be even.
+		{
+			int fullAttackDuration = boltCount / 2 * ticksPerBolt;
+            NPC.velocity = Vector2.Zero;
+            if (currentAttackTickCounter < delayTicks) return;
+
+			int attackCycleTick = currentAttackTickCounter - delayTicks;
+			if (attackCycleTick % ticksPerBolt != 0) return;
+
+			if (currentAttackTickCounter == delayTicks)
+			{
+				Random r = new Random();
+				this.NPC.ai[0] = (float)r.NextDouble() * maxFirstRoll;
+			}
+
+			int projectileNumber = attackCycleTick / ticksPerBolt;
+			float leftProjectileSpacing = 1920 * NPC.ai[0] / (boltCount*0.5f);
+			float rightProjectileSpacing = 1920 * (1 - NPC.ai[0] - safeSpaceSize) / (boltCount * 0.5f);
+
+            if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                var source = NPC.GetSource_FromAI();
+                Vector2 position = targetPlayer.Center - new Vector2(960f, 540f);
+				Vector2 direction = new Vector2(0f, 1f);
+
+                direction.Normalize();
+                float speed = 14f;
+                int type = ProjectileID.PinkLaser; //TODO: change it to something watery
+                int damage = targetDamage_waterDeathhail;
+
+				Vector2 leftOffset = new Vector2(leftProjectileSpacing * projectileNumber, 0f);
+				Vector2 rightOffset = new Vector2(1920f - rightProjectileSpacing * projectileNumber, 0f);
+                Projectile.NewProjectile(source, position + leftOffset, direction * speed, type, damage, 0f, Main.myPlayer);
+                Projectile.NewProjectile(source, position + rightOffset, direction * speed, type, damage, 0f, Main.myPlayer);
+            }
+        }
 
         protected void Talk(string message) //TODO: add localization stuff?
         {

@@ -14,12 +14,12 @@ namespace CalamityTweaks
 
 namespace CalamityTweaks.Enemies
 {
-	public class SupremeCnidrion : ModNPC
+    [AutoloadBossHead]
+    public class SupremeCnidrion : ModNPC
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Supreme Cnidrion");
-			
+			DisplayName.SetDefault("Supreme Cnidrion");			
 		}
 
 		//public int GetDamageFromMasterDeathTarget(int targetDamage, bool isContactDamage = true)
@@ -64,7 +64,7 @@ namespace CalamityTweaks.Enemies
 			else if (currentPatternTick < 700) ChargeAttack(90, true);
         }
 
-		private void SetTargetPhase(int phase)
+		protected void SetTargetPhase(int phase)
 		{
 			prevBossPhase = currBossPhase;
             currBossPhase = phase;
@@ -74,12 +74,19 @@ namespace CalamityTweaks.Enemies
 				ticksInCurrentPhase = 0;
 
 				if (phase == 1) Talk("Long have I waited for this. I've heard rumors about you. Nobody took me seriously, they kept laughing at me, saying I'm a weakling mini-boss! Now, I will prove everyone wrong by defeating you!");
-				if (phase == 2) Talk("Your performance is surprising. Given how much I worked on myself, you are a powerful opponent. I can respect that, but I have a few tricks too.");
+				if (phase == 2)
+				{
+					Talk("Your performance is surprising. Given how much I worked on myself, you are a powerful opponent. I can respect that, but I have a few tricks too.");
+					for (int i = 0; i < 3; ++i)
+					{
+						NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 100, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1);
+					}
+				}
 				if (phase == 3) Talk("Alright, I'll leave fighting to little ones for now");
 				if (phase == 4) Talk("NOOO! I just can't die like this!");
 			}
 		}
-		private void ChargeAttack(int targetTickDuration, bool predictive = false)
+		protected void ChargeAttack(int targetTickDuration, bool predictive = false)
 		{
 			int idleTicks = targetTickDuration / 3;
 
@@ -106,7 +113,7 @@ namespace CalamityTweaks.Enemies
 			if (currentAttackTickCounter == targetTickDuration) currentAttackTickCounter = 0;
         }
 
-		private void WaterBoltAttack(int boltCount, float maxSpreadRadians, int ticksPerBolt)
+		protected void WaterBoltAttack(int boltCount, float maxSpreadRadians, int ticksPerBolt)
 		{
 			if (currentAttackTickCounter <= 1) NPC.velocity = Vector2.Zero;
 
@@ -144,7 +151,7 @@ namespace CalamityTweaks.Enemies
             }
 		}
 
-        private void Talk(string message) //TODO: add localization stuff?
+        protected void Talk(string message) //TODO: add localization stuff?
         {
             if (Main.netMode != NetmodeID.Server)
             {
@@ -160,24 +167,60 @@ namespace CalamityTweaks.Enemies
             }
         }
 
-        private int currBossPhase = -1;
-        private int prevBossPhase = -2;
-        private int ticksInCurrentPhase = 0;
-		private int currentAttackTickCounter = 0; //how much ticks from beginning of last attack. Reset it to 0 when attack is completed
+        protected int currBossPhase = -1;
+        protected int prevBossPhase = -2;
+        protected int ticksInCurrentPhase = 0;
+		protected int currentAttackTickCounter = 0; //how much ticks from beginning of last attack. Reset it to 0 when attack is completed
 
-		private Vector2 currentChargeVelocity;
+		protected Vector2 currentChargeVelocity;
 
-		private Player targetPlayer;
+		protected Player targetPlayer;
 
 		//Damage values are designed for Master Death mode originally (first number) and are scaled appropriately (second number, the multiplier) 
-		private static int targetDamage_nonPredictiveCharge = (int)(1250*0.4);
-        private static int targetDamage_predictiveCharge = (int)(950*0.4);
-		private static int targetDamage_cloneCharge = (int)(850 * 0.4);
-        private static int targetDamage_supremeWaterBolt_contact = (int)(960 * 0.2);
-		private static int targetDamage_supremeWaterBolt_ascending = (int)(780 * 0.2);
-		private static int targetDamage_waterTide = (int)(1250 * 0.2);
-		private static int targetDamage_steamBreath = (int)(1250 * 0.2);
-		private static int targetDamage_waterDeathhail = (int)(840*0.2);
-		private static int targetDamage_predictiveWaterArrow = (int)(910 * 0.2);
+		protected static int targetDamage_nonPredictiveCharge = (int)(1250*0.4);
+        protected static int targetDamage_predictiveCharge = (int)(950*0.4);
+		protected static int targetDamage_cloneCharge = (int)(850 * 0.4);
+        protected static int targetDamage_supremeWaterBolt_contact = (int)(960 * 0.2);
+		protected static int targetDamage_supremeWaterBolt_ascending = (int)(780 * 0.2);
+		protected static int targetDamage_waterTide = (int)(1250 * 0.2);
+		protected static int targetDamage_steamBreath = (int)(1250 * 0.2);
+		protected static int targetDamage_waterDeathhail = (int)(840*0.2);
+		protected static int targetDamage_predictiveWaterArrow = (int)(910 * 0.2);
+    }
+
+	public class SupremeCnidrionClone : SupremeCnidrion
+	{
+        public override void SetStaticDefaults()
+        {
+            DisplayName.SetDefault("Supreme Cnidrion Spawn");
+        }
+        public override void SetDefaults()
+        {
+            NPC.width = 365/2;
+            NPC.height = 236/2;
+            NPC.damage = (int)(850*0.4);
+            NPC.defense = 110;
+            NPC.lifeMax = 350000;
+            NPC.knockBackResist = 0;
+            NPC.value = Item.buyPrice(platinum: 3);
+            NPC.aiStyle = -1;
+
+            NPC.boss = true;
+            NPC.noGravity = true;
+            NPC.lavaImmune = true;
+            NPC.noTileCollide = true;
+        }
+
+        public override void AI()
+        {
+            NPC.TargetClosestUpgraded();
+            this.targetPlayer = Main.player[NPC.target];
+            
+            currentAttackTickCounter++;
+            int patternDurationTicks = 700; //TODO: decouple spawn's patterns
+            int currentPatternTick = ticksInCurrentPhase % patternDurationTicks;
+
+            if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
+        }
     }
 }

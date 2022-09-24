@@ -22,6 +22,8 @@ namespace CalamityTweaks.Enemies
 			
 		}
 
+		//public int GetDamageFromMasterDeathTarget(int targetDamage, bool isContactDamage = true)
+
 		public override void SetDefaults()
 		{
 			NPC.width = 365;
@@ -42,7 +44,8 @@ namespace CalamityTweaks.Enemies
 		public override void AI()
 		{
 			NPC.TargetClosestUpgraded();
-			ticksInCurrentPhase++;
+			this.targetPlayer = Main.player[NPC.target];
+            ticksInCurrentPhase++;
 
 			float lifePct = NPC.GetLifePercent();
 
@@ -52,11 +55,12 @@ namespace CalamityTweaks.Enemies
             else TransitionToPhase(4);
 
             currentAttackTickCounter++;
-			int patternTickCount = 520;
-			int currentPatternTick = ticksInCurrentPhase % patternTickCount;
+			int patternDurationTicks = 700;
+			int currentPatternTick = ticksInCurrentPhase % patternDurationTicks;
 
-            if (currentPatternTick >= 0 && currentPatternTick < 320) NonPredictiveCharge(80);
-			else WaterBoltAttack(50, 20, 4);
+			if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
+			else if (currentPatternTick < 520) WaterBoltAttack(50, 20, 4);
+			else if (currentPatternTick < 700) ChargeAttack(90, true);
         }
 
 		private void TransitionToPhase(int phase)
@@ -74,20 +78,20 @@ namespace CalamityTweaks.Enemies
 				if (phase == 4) Talk("NOOO! I just can't die like this!");
 			}
 		}
-		private void NonPredictiveCharge(int targetTickDuration)
+		private void ChargeAttack(int targetTickDuration, bool predictive = false)
 		{
 			int idleTicks = targetTickDuration / 3;
 
             if (currentAttackTickCounter == idleTicks)
 			{
-				Vector2 targetPos = Main.player[NPC.target].Center;
+                int chargeTickDuration = targetTickDuration / 3;
+                Vector2 targetPos = !predictive ? targetPlayer.Center : targetPlayer.Center + targetPlayer.velocity * (chargeTickDuration*0.5f);
 				Vector2 dir = targetPos - NPC.Center;
 				Vector2 unitDir = dir.SafeNormalize(Vector2.Zero);
 
 				float dirLen = dir.Length();
 				Vector2 chargeTargetPoint = NPC.Center + unitDir * Math.Min(dirLen + 400, 1800);
-
-				int chargeTickDuration = targetTickDuration / 3;
+				
 				this.currentChargeVelocity = (chargeTargetPoint - NPC.Center) / chargeTickDuration;
 			}
 
@@ -118,7 +122,7 @@ namespace CalamityTweaks.Enemies
                     Vector2 direction = targetPosition - position;
                     direction.Normalize();
                     float speed = 16f;
-                    int type = ProjectileID.PinkLaser;
+                    int type = ProjectileID.PinkLaser; //TODO: change it to something watery
 					int damage = (int)(targetDamage_supremeWaterBolt_contact * 2 * targetDamage_mult);
                     Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
                 }
@@ -147,6 +151,8 @@ namespace CalamityTweaks.Enemies
 		private int currentAttackTickCounter = 0; //how much ticks from beginning of last attack. Reset it to 0 when attack is completed
 
 		private Vector2 currentChargeVelocity;
+
+		private Player targetPlayer;
 
 		//These are target damage values for Master Death mode. 
 		private static float targetDamage_nonPredictiveCharge = 1250;

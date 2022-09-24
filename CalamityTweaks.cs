@@ -60,7 +60,7 @@ namespace CalamityTweaks.Enemies
 			int currentPatternTick = ticksInCurrentPhase % patternDurationTicks;
 
 			if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
-			else if (currentPatternTick < 520) WaterBoltAttack(50, 20, 4);
+			else if (currentPatternTick < 520) WaterBoltAttack(50, (float)(20*Math.PI/180), 4);
 			else if (currentPatternTick < 700) ChargeAttack(90, true);
         }
 
@@ -106,7 +106,7 @@ namespace CalamityTweaks.Enemies
 			if (currentAttackTickCounter == targetTickDuration) currentAttackTickCounter = 0;
         }
 
-		private void WaterBoltAttack(int boltCount, float maxSpreadDegrees, int ticksPerBolt)
+		private void WaterBoltAttack(int boltCount, float maxSpreadRadians, int ticksPerBolt)
 		{
 			if (currentAttackTickCounter < 1) NPC.velocity = Vector2.Zero;
 
@@ -121,10 +121,19 @@ namespace CalamityTweaks.Enemies
 			{
                 if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
                 {
+					 
                     var source = NPC.GetSource_FromAI();
                     Vector2 position = NPC.Center;
-                    Vector2 targetPosition = Main.player[NPC.target].Center;
+                    Vector2 targetPosition = targetPlayer.Center;
                     Vector2 direction = targetPosition - position;
+
+					float radius = direction.Length();
+					float targetAngle = position.AngleTo(targetPosition);
+					float currentSpreadPhase = (float)(currentAttackTickCounter) / fullAttackDuration; //from 0 to 1
+					float spreadPhaseAdjusted = currentSpreadPhase - 0.5f; //from -0.5 to 0.5
+					float projectileAngle = targetAngle + maxSpreadRadians * spreadPhaseAdjusted;
+
+					direction = new Vector2(radius * (float)(Math.Cos(projectileAngle)), radius * (float)Math.Sin(projectileAngle));
                     direction.Normalize();
                     float speed = 16f;
                     int type = ProjectileID.PinkLaser; //TODO: change it to something watery
@@ -134,7 +143,7 @@ namespace CalamityTweaks.Enemies
             }
 		}
 
-        private void Talk(string message)
+        private void Talk(string message) //TODO: add localization stuff?
         {
             if (Main.netMode != NetmodeID.Server)
             {

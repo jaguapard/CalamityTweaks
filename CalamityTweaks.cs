@@ -41,7 +41,7 @@ namespace CalamityTweaks.Enemies
 
 		public override void AI()
 		{
-            NPC.TargetClosestUpgraded();
+            NPC.TargetClosestUpgraded(true);
             this.targetPlayer = Main.player[NPC.target];
             ticksInCurrentPhase++;
 
@@ -61,7 +61,7 @@ namespace CalamityTweaks.Enemies
 			else if (currentPatternTick < 700) ChargeAttack(90, true);
 
             int orbitTick = ticksSinceSpawn % 600;
-			for (int i = 0; i < spawns.Count; ++i) //TODO: add spawn death handling
+			for (int i = 0; i < spawns.Count; ++i) //TODO: add Spawn death handling
 			{
 				float currentAngle = 2*i * (float)Math.PI / 3.0f + orbitTick / 300.0f * (float)Math.PI;
 				Main.npc[spawns[i]].position = this.NPC.position + new Vector2(400.0f * (float)Math.Sin(currentAngle), 400.0f * (float)Math.Cos(currentAngle));
@@ -138,8 +138,7 @@ namespace CalamityTweaks.Enemies
 			if (currentAttackTickCounter % ticksPerBolt == 0)
 			{
                 if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
-                {
-					 
+                {					 
                     var source = NPC.GetSource_FromAI();
                     Vector2 position = NPC.Center;
                     Vector2 targetPosition = targetPlayer.Center;
@@ -234,17 +233,88 @@ namespace CalamityTweaks.Enemies
 
         public override void AI()
         {
-            NPC.TargetClosestUpgraded();
+            NPC.TargetClosestUpgraded(true);
             this.targetPlayer = Main.player[NPC.target];
 
-			ticksInCurrentPhase++;            
-            currentAttackTickCounter++;
-            int patternDurationTicks = 700; //TODO: decouple spawn's patterns
-            int currentPatternTick = ticksInCurrentPhase % patternDurationTicks;
+			ticksInCurrentPhase++;
+			currentAttackTickCounter = ticksSinceSpawn % 60;
 
-			ticksSinceSpawn++;
+			if (NPC.ai[0] == 0) waterBoltSequence(3, 10, 0);
+			if (NPC.ai[0] == 1) waterBoltShotgun(5, 60, 20);
+			if (NPC.ai[0] == 2) waterBoltWall(5, 60, 40);
+
+            ticksSinceSpawn++;
             //if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
 
+        }
+
+		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int delayTicks)
+		{
+			if (currentAttackTickCounter < delayTicks) return;
+			if ((currentAttackTickCounter - delayTicks) % ticksPerBolt != 0) return;
+			if (currentAttackTickCounter > delayTicks + ticksPerBolt * projectileCount) return;
+
+            if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                var source = NPC.GetSource_FromAI();
+                Vector2 position = NPC.Center;
+                Vector2 targetPosition = targetPlayer.Center;
+                Vector2 direction = targetPosition - position;
+
+                direction.Normalize();
+                float speed = 16f;
+                int type = ProjectileID.PinkLaser; //TODO: change it to something watery
+                int damage = targetDamage_supremeWaterBolt_contact;
+                Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
+            }
+        }
+
+		protected void waterBoltShotgun(int projectileCount, float maxSpreadDegrees, int delayTicks)
+		{	
+            if (currentAttackTickCounter == delayTicks && NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+				float maxSpreadRadians = maxSpreadDegrees * MathF.PI / 180;
+                var source = NPC.GetSource_FromAI();
+                Vector2 position = NPC.Center;
+                Vector2 targetPosition = targetPlayer.Center;
+                Vector2 direction = targetPosition - position;
+                float targetAngle = position.AngleTo(targetPosition);
+
+				for (int i = 0; i < projectileCount; ++i)
+				{
+					float angleScale = (float)i / projectileCount - 0.5f;
+					float projectileAngle = targetAngle + maxSpreadRadians * angleScale;
+					direction = new Vector2((float)(Math.Cos(projectileAngle)), (float)Math.Sin(projectileAngle));
+					direction.Normalize();
+					float speed = 16f;
+					int type = ProjectileID.PinkLaser; //TODO: change it to something watery
+					int damage = targetDamage_supremeWaterBolt_contact;
+					Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
+				}
+            }         
+		}
+
+		protected void waterBoltWall(int projectileCount, int maxPixelSeparation, int delayTicks)
+		{
+            if (currentAttackTickCounter == delayTicks && NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
+            {
+                var source = NPC.GetSource_FromAI();
+                Vector2 position = NPC.Center;
+                Vector2 targetPosition = targetPlayer.Center;
+                Vector2 direction = targetPosition - position;
+				Vector2 perpendicular = new Vector2(direction.Y, -direction.X);
+				perpendicular.Normalize();
+
+				for (int i = 0; i < projectileCount; ++i)
+				{
+					Vector2 direction2 = direction + perpendicular * ((float)i / projectileCount - 0.5f) * maxPixelSeparation;
+					direction2.Normalize();
+					float speed = 16f;
+					int type = ProjectileID.PinkLaser; //TODO: change it to something watery
+					int damage = targetDamage_supremeWaterBolt_contact;
+					Projectile.NewProjectile(source, position, direction2 * speed, type, damage, 0f, Main.myPlayer);
+				}
+            }
         }
     }
 

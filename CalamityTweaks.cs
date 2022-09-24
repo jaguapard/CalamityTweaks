@@ -61,9 +61,9 @@ namespace CalamityTweaks.Enemies
 			else if (currentPatternTick < 700) ChargeAttack(90, true);
 
             int orbitTick = ticksSinceSpawn % 600;
-			for (int i = 0; i < spawns.Count; ++i)
+			for (int i = 0; i < spawns.Count; ++i) //TODO: add spawn death handling
 			{
-				float currentAngle = 2 * (float)Math.PI / 3.0f + orbitTick / 300.0f * (float)Math.PI;
+				float currentAngle = 2*i * (float)Math.PI / 3.0f + orbitTick / 300.0f * (float)Math.PI;
 				Main.npc[spawns[i]].position = this.NPC.position + new Vector2(400.0f * (float)Math.Sin(currentAngle), 400.0f * (float)Math.Cos(currentAngle));
 			}
 

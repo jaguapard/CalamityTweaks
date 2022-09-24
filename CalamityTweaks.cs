@@ -131,7 +131,8 @@ namespace CalamityTweaks.Enemies
 					float targetAngle = position.AngleTo(targetPosition);
 					float currentSpreadPhase = (float)(currentAttackTickCounter) / fullAttackDuration; //from 0 to 1
 					float spreadPhaseAdjusted = currentSpreadPhase - 0.5f; //from -0.5 to 0.5
-					float projectileAngle = targetAngle + maxSpreadRadians * spreadPhaseAdjusted;
+					float alterationModifier = ((currentAttackTickCounter / ticksPerBolt) % 2) * 2 - 1; //-1 and 1. Makes bolts converge onto the player
+					float projectileAngle = targetAngle + maxSpreadRadians * spreadPhaseAdjusted * alterationModifier;
 
 					direction = new Vector2(radius * (float)(Math.Cos(projectileAngle)), radius * (float)Math.Sin(projectileAngle));
                     direction.Normalize();

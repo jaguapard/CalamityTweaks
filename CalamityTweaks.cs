@@ -61,9 +61,9 @@ namespace CalamityTweaks.Enemies
 
 			if (NPC.HasValidTarget)
 			{
-				if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
+				if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, 0.0f);
 				else if (currentPatternTick < 520) WaterBoltAttack(50, (float)(20 * Math.PI / 180), 4);
-				else if (currentPatternTick < 700) ChargeAttack(90, true);
+				else if (currentPatternTick < 700) ChargeAttack(90, 1.5f);
 			}
 
             int orbitTick = ticksSinceSpawn % 600;
@@ -103,14 +103,14 @@ namespace CalamityTweaks.Enemies
 				if (phase == 4) Talk("Time to get serious!");
 			}
 		}
-		protected void ChargeAttack(int targetTickDuration, bool predictive = false)
+		protected void ChargeAttack(int targetTickDuration, float predictiveness = 0.0f)
 		{
 			int idleTicks = targetTickDuration / 3;
 
             if (currentAttackTickCounter == idleTicks)
 			{
                 int chargeTickDuration = targetTickDuration / 3;
-                Vector2 targetPos = !predictive ? targetPlayer.Center : targetPlayer.Center + targetPlayer.velocity * (chargeTickDuration*0.5f);
+                Vector2 targetPos = targetPlayer.Center + targetPlayer.velocity * (chargeTickDuration*0.5f) * predictiveness;
 				Vector2 dir = targetPos - NPC.Center;
 				Vector2 unitDir = dir.SafeNormalize(Vector2.Zero);
 
@@ -161,7 +161,7 @@ namespace CalamityTweaks.Enemies
 
 					direction = new Vector2(radius * (float)(Math.Cos(projectileAngle)), radius * (float)Math.Sin(projectileAngle));
                     direction.Normalize();
-                    float speed = 16f;
+                    float speed = 14f;
                     int type = ProjectileID.PinkLaser; //TODO: change it to something watery
 					int damage = targetDamage_supremeWaterBolt_contact;
                     Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
@@ -200,8 +200,8 @@ namespace CalamityTweaks.Enemies
 		protected static int targetDamage_nonPredictiveCharge = (int)(1250*0.4);
         protected static int targetDamage_predictiveCharge = (int)(950*0.4);
 		protected static int targetDamage_cloneCharge = (int)(850 * 0.4);
-        protected static int targetDamage_supremeWaterBolt_contact = (int)(960 * 0.2);
-		protected static int targetDamage_supremeWaterBolt_ascending = (int)(780 * 0.2);
+        protected static int targetDamage_supremeWaterBolt_contact = (int)(860 * 0.2);
+		protected static int targetDamage_supremeWaterBolt_ascending = (int)(690 * 0.2);
 		protected static int targetDamage_waterTide = (int)(1250 * 0.2);
 		protected static int targetDamage_steamBreath = (int)(1250 * 0.2);
 		protected static int targetDamage_waterDeathhail = (int)(840*0.2);
@@ -271,7 +271,7 @@ namespace CalamityTweaks.Enemies
                 Vector2 direction = targetPosition - position;
 
                 direction.Normalize();
-                float speed = 16f;
+                float speed = 14f;
                 int type = ProjectileID.PinkLaser; //TODO: change it to something watery
                 int damage = targetDamage_supremeWaterBolt_contact;
                 Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
@@ -295,7 +295,7 @@ namespace CalamityTweaks.Enemies
 					float projectileAngle = targetAngle + maxSpreadRadians * angleScale;
 					direction = new Vector2((float)(Math.Cos(projectileAngle)), (float)Math.Sin(projectileAngle));
 					direction.Normalize();
-					float speed = 16f;
+					float speed = 14f;
 					int type = ProjectileID.PinkLaser; //TODO: change it to something watery
 					int damage = targetDamage_supremeWaterBolt_contact;
 					Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
@@ -318,7 +318,7 @@ namespace CalamityTweaks.Enemies
 				{
 					Vector2 direction2 = direction + perpendicular * ((float)i / projectileCount - 0.5f) * maxPixelSeparation;
 					direction2.Normalize();
-					float speed = 16f;
+					float speed = 14f;
 					int type = ProjectileID.PinkLaser; //TODO: change it to something watery
 					int damage = targetDamage_supremeWaterBolt_contact;
 					Projectile.NewProjectile(source, position, direction2 * speed, type, damage, 0f, Main.myPlayer);

@@ -28,7 +28,7 @@ namespace CalamityTweaks.Enemies
 		{
 			NPC.width = 365;
 			NPC.height = 236;
-			NPC.damage = (int)(targetDamage_nonPredictiveCharge * targetDamage_mult * 4);
+			NPC.damage = targetDamage_nonPredictiveCharge;
 			NPC.defense = 150;
 			NPC.lifeMax = 4000000;
 			NPC.knockBackResist = 0;			
@@ -44,7 +44,8 @@ namespace CalamityTweaks.Enemies
 		public override void AI()
 		{
 			NPC.TargetClosestUpgraded();
-			this.targetPlayer = Main.player[NPC.target];
+            NPC.damage = targetDamage_nonPredictiveCharge; //reset damage in case it gets interrupted from predictive charge attack that reduces damage
+            this.targetPlayer = Main.player[NPC.target];
             ticksInCurrentPhase++;
 
 			float lifePct = NPC.GetLifePercent();
@@ -96,7 +97,11 @@ namespace CalamityTweaks.Enemies
 			}
 
 			if (currentAttackTickCounter < idleTicks || currentAttackTickCounter > targetTickDuration - idleTicks) NPC.velocity = Vector2.Zero;
-			else NPC.velocity = this.currentChargeVelocity;
+			else
+			{
+				NPC.velocity = this.currentChargeVelocity;
+				if (predictive) NPC.damage = targetDamage_predictiveCharge;
+            }
 
 			if (currentAttackTickCounter == targetTickDuration) currentAttackTickCounter = 0;
         }
@@ -123,7 +128,7 @@ namespace CalamityTweaks.Enemies
                     direction.Normalize();
                     float speed = 16f;
                     int type = ProjectileID.PinkLaser; //TODO: change it to something watery
-					int damage = (int)(targetDamage_supremeWaterBolt_contact * 2 * targetDamage_mult);
+					int damage = targetDamage_supremeWaterBolt_contact;
                     Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
                 }
             }
@@ -154,16 +159,15 @@ namespace CalamityTweaks.Enemies
 
 		private Player targetPlayer;
 
-		//These are target damage values for Master Death mode. 
-		private static float targetDamage_nonPredictiveCharge = 1250;
-        private static float targetDamage_predictiveCharge = 950;
-		private static float targetDamage_cloneCharge = 850;
-		private static float targetDamage_supremeWaterBolt_contact = 960;
-		private static float targetDamage_supremeWaterBolt_ascending = 780;
-		private static float targetDamage_waterTide = 1250;
-		private static float targetDamage_steamBreath = 1080;
-		private static float targetDamage_waterDeathhail = 840;
-		private static float targetDamage_predictiveWaterArrow = 910;
-		private static float targetDamage_mult = 125.0f / 1250;
+		//Damage values are designed for Master Death mode originally (first number) and are scaled appropriately (second number, the multiplier) 
+		private static int targetDamage_nonPredictiveCharge = (int)(1250*0.4);
+        private static int targetDamage_predictiveCharge = (int)(950*0.4);
+		private static int targetDamage_cloneCharge = (int)(850 * 0.4);
+        private static int targetDamage_supremeWaterBolt_contact = (int)(960 * 0.2);
+		private static int targetDamage_supremeWaterBolt_ascending = (int)(780 * 0.2);
+		private static int targetDamage_waterTide = (int)(1250 * 0.2);
+		private static int targetDamage_steamBreath = (int)(1250 * 0.2);
+		private static int targetDamage_waterDeathhail = (int)(840*0.2);
+		private static int targetDamage_predictiveWaterArrow = (int)(910 * 0.2);
     }
 }

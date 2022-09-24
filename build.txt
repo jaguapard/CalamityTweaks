@@ -1,3 +1,3 @@
-displayName = Calamity Tweaks
+displayName = Supreme Cnidrion Boss
 author = groomyjohny
 version = 0.1

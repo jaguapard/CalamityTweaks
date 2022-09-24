@@ -28,7 +28,7 @@ namespace CalamityTweaks.Enemies
 			NPC.height = 236;
 			NPC.damage = targetDamage_nonPredictiveCharge;
 			NPC.defense = 150;
-			NPC.lifeMax = 4000000;
+			NPC.lifeMax = 5500000; 
 			NPC.knockBackResist = 0;			
 			NPC.value = Item.buyPrice(platinum: 50);
 			NPC.aiStyle = -1;
@@ -218,7 +218,7 @@ namespace CalamityTweaks.Enemies
 			//NPC.damage = (int)(850*0.4);
 			NPC.damage = 0;
             NPC.defense = 110;
-            NPC.lifeMax = 350000;
+            NPC.lifeMax = 1500000;
             NPC.knockBackResist = 0;
             NPC.value = Item.buyPrice(platinum: 3);
             NPC.aiStyle = -1;

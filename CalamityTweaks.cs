@@ -50,10 +50,10 @@ namespace CalamityTweaks.Enemies
 
 			float lifePct = NPC.GetLifePercent();
 
-			if (lifePct > 0.60) TransitionToPhase(1);
-			else if (lifePct > 0.30) TransitionToPhase(2);
+			if (lifePct > 0.60) SetTargetPhase(1);
+			else if (lifePct > 0.30) SetTargetPhase(2);
             //TODO: implement: if clones are alive, enter phase 3
-            else TransitionToPhase(4);
+            else SetTargetPhase(4);
 
             currentAttackTickCounter++;
 			int patternDurationTicks = 700;
@@ -64,12 +64,12 @@ namespace CalamityTweaks.Enemies
 			else if (currentPatternTick < 700) ChargeAttack(90, true);
         }
 
-		private void TransitionToPhase(int phase)
+		private void SetTargetPhase(int phase)
 		{
 			prevBossPhase = currBossPhase;
             currBossPhase = phase;
 
-			if (prevBossPhase != currBossPhase)
+			if (prevBossPhase != currBossPhase) //on phase transition
 			{
 				ticksInCurrentPhase = 0;
 

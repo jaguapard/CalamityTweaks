@@ -42,6 +42,7 @@ namespace CalamityTweaks.Enemies
 		public override void AI()
 		{
             NPC.TargetClosestUpgraded(true);
+			NPC.FaceTarget();
             this.targetPlayer = Main.player[NPC.target];
             ticksInCurrentPhase++;
 
@@ -234,6 +235,7 @@ namespace CalamityTweaks.Enemies
         public override void AI()
         {
             NPC.TargetClosestUpgraded(true);
+            NPC.FaceTarget();
             this.targetPlayer = Main.player[NPC.target];
 
 			ticksInCurrentPhase++;

@@ -52,32 +52,48 @@ namespace CalamityTweaks.Enemies
 
 			if (lifePct > 0.60) SetTargetPhase(1);
 			else if (lifePct > 0.30) SetTargetPhase(2);
-            //TODO: implement: if clones are alive, enter phase 3
-            else SetTargetPhase(4);
+			else
+			{
+				if (currBossPhase == 3 && !IsAnySpawnAlive()) SetTargetPhase(4);
+				else SetTargetPhase(3);
+			}
+			//else SetTargetPhase(4);
 
             currentAttackTickCounter++;
 			int patternDurationTicks = 860;
 			int currentPatternTick = ticksInCurrentPhase % patternDurationTicks;
 
-			if (NPC.HasValidTarget)
+			if (NPC.HasValidTarget && currBossPhase != 3)
 			{
-				if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, 0.0f);
+				if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, 600, 400, 2000, 0);
 				else if (currentPatternTick < 520) WaterBoltAttack(50, (float)(20 * Math.PI / 180), 4);
-				else if (currentPatternTick < 700) ChargeAttack(90, 1.5f);
+				else if (currentPatternTick < 700) ChargeAttack(90, 400, 300, 1800, 1.5f);
 				else if (currentPatternTick < 860) WaterDeathHailAttack(0.1f, 0.7f, 3, 80, 40);
 			}
 
-            int orbitTick = ticksSinceSpawn % 600;
-			for (int i = 0; i < spawns.Count; ++i) //TODO: add Spawn death handling
+			if (currBossPhase != 3)
 			{
-				if (Main.npc[spawns[i]].netID != ModContent.NPCType<SupremeCnidrionClone>()) continue;
+				int orbitTick = ticksSinceSpawn % 600;
+				for (int i = 0; i < spawns.Count; ++i) //TODO: add Spawn death handling
+				{
+					if (Main.npc[spawns[i]].netID != ModContent.NPCType<SupremeCnidrionClone>()) continue;
 
-				float currentAngle = 2*i * (float)Math.PI / 3.0f + orbitTick / 300.0f * (float)Math.PI;
-				Main.npc[spawns[i]].position = this.NPC.position + new Vector2(400.0f * (float)Math.Sin(currentAngle), 400.0f * (float)Math.Cos(currentAngle));
+					float currentAngle = 2 * i * (float)Math.PI / 3.0f + orbitTick / 300.0f * (float)Math.PI;
+					Main.npc[spawns[i]].position = this.NPC.position + new Vector2(400.0f * (float)Math.Sin(currentAngle), 400.0f * (float)Math.Cos(currentAngle));
+				}
 			}
 
             ticksSinceSpawn++;
         }
+
+		public bool IsAnySpawnAlive()
+		{
+			foreach (var s in spawns)
+			{
+                if (Main.npc[s].netID == ModContent.NPCType<SupremeCnidrionClone>()) return true;
+            }
+			return false;
+		}
 
 		protected void SetTargetPhase(int phase)
 		{
@@ -89,6 +105,7 @@ namespace CalamityTweaks.Enemies
 				ticksInCurrentPhase = 0;
 
 				if (phase == 1) Talk("Long have I waited for this. I've heard rumors about you. Nobody took me seriously, they kept laughing at me, saying I'm a weakling mini-boss! Now, I will prove everyone wrong by defeating you!");
+
 				if (phase == 2)
 				{
 					Talk("Your performance is surprising. Given how much I worked on myself, you are a powerful opponent. I can respect that, but I have a few tricks too.");
@@ -97,14 +114,34 @@ namespace CalamityTweaks.Enemies
 						for (int i = 0; i < 3; ++i)
 						{
 							spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 100, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i));
-						}
+						}						
 					}
 				}
-				if (phase == 3) Talk("Alright, I'll leave fighting to the little ones for now");
-				if (phase == 4) Talk("Time to get serious!");
+
+				if (phase == 3)
+				{
+					Talk("Alright, I'll leave fighting to the little ones for now");
+					NPC.immortal = true;
+					NPC.alpha = 100;
+					NPC.damage = 0;
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 200, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i));
+                    }
+
+                    foreach (var s in spawns)
+                    {
+                        if (Main.npc[s].netID == ModContent.NPCType<SupremeCnidrionClone>()) Main.npc[s].ai[1] = 1;
+                    }
+                }
+
+				if (phase == 4)
+				{
+					Talk("Time to get serious!");
+				}
 			}
 		}
-		protected void ChargeAttack(int targetTickDuration, float predictiveness = 0.0f)
+		protected void ChargeAttack(int targetTickDuration, float minDist, float playerOffset, float maxDist, float predictiveness)
 		{
 			int idleTicks = targetTickDuration / 3;
 
@@ -116,7 +153,7 @@ namespace CalamityTweaks.Enemies
 				Vector2 unitDir = dir.SafeNormalize(Vector2.Zero);
 
 				float dirLen = dir.Length();
-				Vector2 chargeTargetPoint = NPC.Center + unitDir * Math.Min(dirLen + 400, 1800);
+				Vector2 chargeTargetPoint = NPC.Center + unitDir * Math.Max(Math.Min(dirLen + playerOffset, maxDist), minDist);
 				
 				this.currentChargeVelocity = (chargeTargetPoint - NPC.Center) / chargeTickDuration;
 			}
@@ -284,11 +321,19 @@ namespace CalamityTweaks.Enemies
             this.targetPlayer = Main.player[NPC.target];
 
 			ticksInCurrentPhase++;
-			currentAttackTickCounter = ticksSinceSpawn % 60;
+			bool isFreeMoving = NPC.ai[1] == 1f;
+			if (isFreeMoving) NPC.damage = targetDamage_cloneCharge;
 
-			if (NPC.ai[0] == 0) waterBoltSequence(3, 10, 0);
-			if (NPC.ai[0] == 1) waterBoltShotgun(5, 60, 20);
-			if (NPC.ai[0] == 2) waterBoltWall(5, 60, 40);
+			currentAttackTickCounter = ticksSinceSpawn % (isFreeMoving ? 140 : 60);
+			int attackType = (int)NPC.ai[0] % 3;
+
+			if (currentAttackTickCounter < 60)
+			{
+				if (attackType == 0) waterBoltSequence(3, 10, 0);
+				if (attackType == 1) waterBoltShotgun(5, 60, 20);
+				if (attackType == 2) waterBoltWall(5, 60, 40);
+			}
+			else ChargeAttack(80, 200, 250, 1000, 0);
 
             ticksSinceSpawn++;
             //if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);

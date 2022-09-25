@@ -66,7 +66,7 @@ namespace CalamityTweaks.Enemies
 			if (NPC.HasValidTarget && currBossPhase != 3)
 			{
 				if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, 600, 400, 2000, 0);
-				else if (currentPatternTick < 520) WaterBoltAttack(50, (float)(20 * Math.PI / 180), 4);
+				else if (currentPatternTick < 520) WaterBoltAttack(50, (20 * MathF.PI / 180), 4);
 				else if (currentPatternTick < 700) ChargeAttack(90, 400, 300, 1800, 1.5f);
 				else if (currentPatternTick < 860) WaterDeathHailAttack(0.1f, 0.7f, 3, 80, 40);
 			}
@@ -78,8 +78,8 @@ namespace CalamityTweaks.Enemies
 				{
 					if (Main.npc[spawns[i]].netID != ModContent.NPCType<SupremeCnidrionClone>()) continue;
 
-					float currentAngle = 2 * i * (float)Math.PI / 3.0f + orbitTick / 300.0f * (float)Math.PI;
-					Main.npc[spawns[i]].position = this.NPC.position + new Vector2(400.0f * (float)Math.Sin(currentAngle), 400.0f * (float)Math.Cos(currentAngle));
+					float currentAngle = 2 * i * MathF.PI / 3.0f + orbitTick / 300.0f * MathF.PI;
+					Main.npc[spawns[i]].position = this.NPC.position + new Vector2(400.0f * MathF.Sin(currentAngle), 400.0f * MathF.Cos(currentAngle));
 				}
 			}
 
@@ -153,7 +153,7 @@ namespace CalamityTweaks.Enemies
 				Vector2 unitDir = dir.SafeNormalize(Vector2.Zero);
 
 				float dirLen = dir.Length();
-				Vector2 chargeTargetPoint = NPC.Center + unitDir * Math.Max(Math.Min(dirLen + playerOffset, maxDist), minDist);
+				Vector2 chargeTargetPoint = NPC.Center + unitDir * MathF.Max(MathF.Min(dirLen + playerOffset, maxDist), minDist);
 				
 				this.currentChargeVelocity = (chargeTargetPoint - NPC.Center) / chargeTickDuration;
 			}
@@ -197,7 +197,7 @@ namespace CalamityTweaks.Enemies
 					float alterationModifier = ((currentAttackTickCounter / ticksPerBolt) % 2) * 2 - 1; //-1 and 1. Makes bolts converge onto the player
 					float projectileAngle = targetAngle + maxSpreadRadians * spreadPhaseAdjusted * alterationModifier;
 
-					direction = new Vector2(radius * (float)(Math.Cos(projectileAngle)), radius * (float)Math.Sin(projectileAngle));
+					direction = new Vector2(radius * MathF.Cos(projectileAngle), radius * MathF.Sin(projectileAngle));
                     direction.Normalize();
                     float speed = 14f;
                     int type = ProjectileID.PinkLaser; //TODO: change it to something watery
@@ -311,7 +311,7 @@ namespace CalamityTweaks.Enemies
             NPC.noTileCollide = true;
 
 			//ticksInCurrentPhase = (int)(NPC.ai[0] * 100);
-			orbitRadianOffset = NPC.ai[0] * 120.0f * (float)Math.PI / 180.0f;			
+			orbitRadianOffset = NPC.ai[0] * 120.0f * MathF.PI / 180.0f;			
         }
 
         public override void AI()
@@ -337,7 +337,6 @@ namespace CalamityTweaks.Enemies
 
             ticksSinceSpawn++;
             //if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
-
         }
 
 		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int delayTicks)
@@ -376,7 +375,7 @@ namespace CalamityTweaks.Enemies
 				{
 					float angleScale = (float)i / projectileCount - 0.5f;
 					float projectileAngle = targetAngle + maxSpreadRadians * angleScale;
-					direction = new Vector2((float)(Math.Cos(projectileAngle)), (float)Math.Sin(projectileAngle));
+					direction = new Vector2(MathF.Cos(projectileAngle), MathF.Sin(projectileAngle));
 					direction.Normalize();
 					float speed = 14f;
 					int type = ProjectileID.PinkLaser; //TODO: change it to something watery

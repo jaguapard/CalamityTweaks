@@ -1,1 +1,5 @@
-Just a Supreme Cnidrion Boss for now. Designed for endgame Calamity equipment, currently in early alpha. Combine Amidas' Spark with 10 Shadowspec bars by hand and use it to summon the monstrosity.
+A beggining of decently large-scale Calamity Tweaks mod. 
+
+For now, it's just a Supreme Cnidrion Boss. Designed for endgame Calamity equipment, currently in early alpha. Combine Amidas' Spark with 10 Shadowspec bars by hand and use it to summon the monstrosity.
+
+If you want to help developing this mod or cringe at code quality, you're welcome. It is open-source and can be found at github.com/groomyjohny/CalamityTweaks

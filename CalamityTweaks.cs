@@ -241,11 +241,12 @@ namespace CalamityTweaks.Enemies
                 float speed = 6f;
                 int type = ProjectileID.PinkLaser; //TODO: change it to something watery
                 int damage = targetDamage_waterDeathhail;
+				Vector2 adjDir = direction * speed;
 
 				Vector2 leftOffset = new Vector2(leftProjectileSpacing * projectileNumber, 0f);
 				Vector2 rightOffset = new Vector2(1920f - rightProjectileSpacing * projectileNumber, 0f);
-                Projectile.NewProjectile(source, position + leftOffset, direction * speed, type, damage, 0f, Main.myPlayer);
-                Projectile.NewProjectile(source, position + rightOffset, direction * speed, type, damage, 0f, Main.myPlayer);
+                Projectile.NewProjectile(source, position + leftOffset, adjDir, type, damage, 0f, Main.myPlayer);
+                Projectile.NewProjectile(source, position + rightOffset, adjDir, type, damage, 0f, Main.myPlayer);
             }
         }
 
@@ -301,7 +302,6 @@ namespace CalamityTweaks.Enemies
         {
             NPC.width = 365/3;
             NPC.height = 236/3;
-			//NPC.damage = (int)(850*0.4);
 			NPC.damage = 0;
             NPC.defense = 110;
             NPC.lifeMax = 1500000;
@@ -314,7 +314,6 @@ namespace CalamityTweaks.Enemies
             NPC.lavaImmune = true;
             NPC.noTileCollide = true;
 
-			//ticksInCurrentPhase = (int)(NPC.ai[0] * 100);
 			orbitRadianOffset = NPC.ai[0] * 120.0f * MathF.PI / 180.0f;			
         }
 
@@ -340,7 +339,6 @@ namespace CalamityTweaks.Enemies
 			else ChargeAttack(80, 200, 250, 1000, 0);
 
             ticksSinceSpawn++;
-            //if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, false);
         }
 
 		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int delayTicks)

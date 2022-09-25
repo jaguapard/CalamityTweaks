@@ -75,24 +75,10 @@ namespace CalamityTweaks.Enemies
 
 		public override void AI()
 		{
-            NPC.TargetClosestUpgraded(true);			
-
-			if (NPC.HasValidTarget)
-			{
-                this.targetPlayer = Main.player[NPC.target];
-                if ((targetPlayer.position - NPC.position).X > 0) NPC.direction = 1;
-				else NPC.direction = -1;
-			}
-			else 
-			{
-                this.NPC.velocity.Y += 1f;
-				this.targetPlayer = null;
-            }
-            
+            NPC.TargetClosestUpgraded(true);			            
             ticksInCurrentPhase++;
 
 			float lifePct = NPC.GetLifePercent();
-
 			if (lifePct > 0.60) SetTargetPhase(1);
 			else if (lifePct > 0.30) SetTargetPhase(2);
 			else
@@ -103,7 +89,6 @@ namespace CalamityTweaks.Enemies
                 }				
 				else if (currBossPhase < 3) SetTargetPhase(3);				
 			}
-
 
 			if (NPC.HasValidTarget && currBossPhase != 3)
 			{

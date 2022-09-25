@@ -107,6 +107,12 @@ namespace CalamityTweaks.Enemies
             DisplayName.SetDefault("Supreme Cnidrion");
         }
 
+        public override bool? DrawHealthBar(byte hbPosition, ref float scale, ref Vector2 position)
+        {
+            if (currBossPhase == 3) return false;
+            else return true;
+        }
+
         public override void SetDefaults()
         {
             NPC.width = 365;

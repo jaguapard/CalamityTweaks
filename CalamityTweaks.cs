@@ -337,9 +337,22 @@ namespace CalamityTweaks.Enemies
 			orbitRadianOffset = NPC.ai[0] * 120.0f * MathF.PI / 180.0f;
 
 			int attackType = (int)NPC.ai[0] % 3;
-			if (attackType == 0) pm_phase1.AddAttack(120, Attacks_WaterBoltSequence);
-			if (attackType == 1) pm_phase1.AddAttack(120, Attacks_WaterBoltShotgun);
-			if (attackType == 2) pm_phase1.AddAttack(120, Attacks_WaterBoltWall);
+			if (attackType == 0)
+			{
+				pm_phase1.AddAttack(120, Attacks_WaterBoltSequence);
+			}
+			if (attackType == 1)
+			{
+				pm_phase1.AddAttack(39, Attacks_DoNothing);
+				pm_phase1.AddAttack(1, Attacks_WaterBoltShotgun);
+				pm_phase1.AddAttack(40, Attacks_DoNothing);
+			}
+			if (attackType == 2)
+			{
+                pm_phase1.AddAttack(79, Attacks_DoNothing);
+                pm_phase1.AddAttack(1, Attacks_WaterBoltWall);
+                pm_phase1.AddAttack(40, Attacks_DoNothing);
+            }
 
 			pm_phase2 = pm_phase1;
 			pm_phase2.AddAttack(80, Attacks_SpawnCharge);
@@ -357,14 +370,14 @@ namespace CalamityTweaks.Enemies
 			if (isFreeMoving)
 			{
 				NPC.damage = targetDamage_cloneCharge;
-                pm_phase1.Advance(1);
-                pm_phase1.Attack();
+                pm_phase2.Advance(1);
+                pm_phase2.Attack();
             }
 			else
 			{
 				NPC.damage = 0;
-				pm_phase2.Advance(1);
-				pm_phase2.Attack();
+				pm_phase1.Advance(1);
+				pm_phase1.Attack();
 			}
 
 			ticksSinceSpawn++;
@@ -372,29 +385,27 @@ namespace CalamityTweaks.Enemies
 
 		public void Attacks_WaterBoltSequence(int currentAttackTick)
 		{
-			waterBoltSequence(3, 10, 0, 120, currentAttackTick);
+			waterBoltSequence(3, 10, currentAttackTick);
 		}
 
 		public void Attacks_WaterBoltShotgun(int currentAttackTick)
 		{
-			waterBoltShotgun(5, 60, 40, 120, currentAttackTick);
+			waterBoltShotgun(5, 60, currentAttackTick);
 		}
 
 		public void Attacks_WaterBoltWall(int currentAttackTick)
 		{
-			waterBoltWall(5, 60, 80, 120, currentAttackTick);
+			waterBoltWall(5, 60, currentAttackTick);
 		}
 
 		public void Attacks_SpawnCharge(int currentAttackTick)
 		{
 			ChargeAttack(80, 200, 250, 1000, 0, currentAttackTick); 
         }
-		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int delayTicks, int totalDurationTicks, int currentAttackTick)
-		{
-			if (currentAttackTick < delayTicks) return;
-			if ((currentAttackTick - delayTicks) % ticksPerBolt != 0) return;
-			if (currentAttackTick > delayTicks + ticksPerBolt * projectileCount) return;
 
+		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int currentAttackTick)
+		{
+			if (currentAttackTick % ticksPerBolt != 0 || currentAttackTick > ticksPerBolt*projectileCount) return;
             if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
             {
                 var source = NPC.GetSource_FromAI();
@@ -410,9 +421,9 @@ namespace CalamityTweaks.Enemies
             }
         }
 
-		protected void waterBoltShotgun(int projectileCount, float maxSpreadDegrees, int delayTicks, int totalDurationTicks, int currentAttackTick)
+		protected void waterBoltShotgun(int projectileCount, float maxSpreadDegrees, int currentAttackTick)
 		{
-            if (currentAttackTick == delayTicks && NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
+            if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
             {
 				float maxSpreadRadians = maxSpreadDegrees * MathF.PI / 180;
                 var source = NPC.GetSource_FromAI();
@@ -434,9 +445,9 @@ namespace CalamityTweaks.Enemies
             }         
 		}
 
-		protected void waterBoltWall(int projectileCount, int maxPixelSeparation, int delayTicks, int totalDurationTicks, int currentAttackTick)
+		protected void waterBoltWall(int projectileCount, int maxPixelSeparation, int currentAttackTick)
 		{
-            if (currentAttackTick == delayTicks && NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
+            if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
             {
                 var source = NPC.GetSource_FromAI();
                 Vector2 position = NPC.Center;

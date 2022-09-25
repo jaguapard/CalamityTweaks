@@ -85,7 +85,7 @@ namespace CalamityTweaks.Enemies
 			if (currBossPhase != 3)
 			{
 				int orbitTick = ticksSinceSpawn % 600;
-				for (int i = 0; i < spawns.Count; ++i) //TODO: add Spawn death handling
+				for (int i = 0; i < spawns.Count; ++i)
 				{
 					if (Main.npc[spawns[i]].netID != ModContent.NPCType<SupremeCnidrionClone>()) continue;
 
@@ -333,29 +333,34 @@ namespace CalamityTweaks.Enemies
             this.targetPlayer = Main.player[NPC.target];
 
 			ticksInCurrentPhase++;
-			//Talk(NPC.ai[1].ToString());
 			bool isFreeMoving = NPC.ai[1] > 0;
-			if (isFreeMoving) NPC.damage = targetDamage_cloneCharge;
+			NPC.damage = isFreeMoving ? targetDamage_cloneCharge : 0;
 
-			currentAttackTickCounter = ticksSinceSpawn % (isFreeMoving ? 200 : 120);
+			int patternDuration = isFreeMoving ? 200 : 120;
+            int patternTick = ticksSinceSpawn % patternDuration;
 			int attackType = (int)NPC.ai[0] % 3;
+			currentAttackTickCounter++;
 
-			if (currentAttackTickCounter < 120) //TODO: stop attacking when main one is performing water deathhail
+			if (patternTick < 120) //TODO: stop attacking when main one is performing water deathhail
 			{
-				if (attackType == 0) waterBoltSequence(3, 10, 0);
-				if (attackType == 1) waterBoltShotgun(5, 60, 40);
-				if (attackType == 2) waterBoltWall(5, 60, 80);
+				if (attackType == 0) waterBoltSequence(3, 10, 0, 120);
+				if (attackType == 1) waterBoltShotgun(5, 60, 40, 120);
+				if (attackType == 2) waterBoltWall(5, 60, 80, 120);
 			}
 			else ChargeAttack(80, 200, 250, 1000, 0);
 
             ticksSinceSpawn++;
         }
 
-		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int delayTicks)
+		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int delayTicks, int totalDurationTicks)
 		{
 			if (currentAttackTickCounter < delayTicks) return;
 			if ((currentAttackTickCounter - delayTicks) % ticksPerBolt != 0) return;
-			if (currentAttackTickCounter > delayTicks + ticksPerBolt * projectileCount) return;
+			if (currentAttackTickCounter > delayTicks + ticksPerBolt * projectileCount)
+			{
+				currentAttackTickCounter = 0;
+				return;
+			}
 
             if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
             {
@@ -372,8 +377,13 @@ namespace CalamityTweaks.Enemies
             }
         }
 
-		protected void waterBoltShotgun(int projectileCount, float maxSpreadDegrees, int delayTicks)
-		{	
+		protected void waterBoltShotgun(int projectileCount, float maxSpreadDegrees, int delayTicks, int totalDurationTicks)
+		{
+            if (currentAttackTickCounter >= totalDurationTicks)
+            {
+                currentAttackTickCounter = 0;
+                return;
+            }
             if (currentAttackTickCounter == delayTicks && NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
             {
 				float maxSpreadRadians = maxSpreadDegrees * MathF.PI / 180;
@@ -397,8 +407,13 @@ namespace CalamityTweaks.Enemies
             }         
 		}
 
-		protected void waterBoltWall(int projectileCount, int maxPixelSeparation, int delayTicks)
+		protected void waterBoltWall(int projectileCount, int maxPixelSeparation, int delayTicks, int totalDurationTicks)
 		{
+			if (currentAttackTickCounter >= totalDurationTicks)
+			{
+				currentAttackTickCounter = 0;
+				return;
+			}
             if (currentAttackTickCounter == delayTicks && NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
             {
                 var source = NPC.GetSource_FromAI();

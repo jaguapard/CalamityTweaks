@@ -19,7 +19,30 @@ namespace CalamityTweaks.Enemies
     public class SupremeCnidrion : ModNPC
 	{
 		private PatternManager pm_phase1;
-		public override void SetStaticDefaults()
+        protected int currBossPhase = -1;
+        protected int prevBossPhase = -2;
+        protected int ticksInCurrentPhase = 0;
+        protected int currentAttackTickCounter = 0; //how much ticks from beginning of last attack. Reset it to 0 when attack is completed
+        protected int ticksSinceSpawn = 0;
+        protected List<int> spawns = new();
+
+        protected Vector2 deathHailTargetPos;
+        protected Vector2 currentChargeVelocity;
+        protected Player targetPlayer;
+
+        //Damage values are designed for Master Death mode originally (first number) and are scaled appropriately (second number, the multiplier) 
+        protected static int targetDamage_nonPredictiveCharge = (int)(1250 * 0.4);
+        protected static int targetDamage_predictiveCharge = (int)(950 * 0.4);
+        protected static int targetDamage_cloneCharge = (int)(850 * 0.4);
+        protected static int targetDamage_supremeWaterBolt_contact = (int)(860 * 0.2);
+        protected static int targetDamage_supremeWaterBolt_ascending = (int)(690 * 0.2);
+        protected static int targetDamage_waterTide = (int)(1250 * 0.2);
+        protected static int targetDamage_steamBreath = (int)(1250 * 0.2);
+        protected static int targetDamage_waterDeathhail = (int)(840 * 0.2);
+        protected static int targetDamage_predictiveWaterArrow = (int)(910 * 0.2);
+
+
+        public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Supreme Cnidrion");			
 		}
@@ -306,28 +329,6 @@ namespace CalamityTweaks.Enemies
                 Terraria.Chat.ChatHelper.BroadcastChatMessage(text, new Color(150, 250, 150));
             }
         }
-
-        protected int currBossPhase = -1;
-        protected int prevBossPhase = -2;
-        protected int ticksInCurrentPhase = 0;
-		protected int currentAttackTickCounter = 0; //how much ticks from beginning of last attack. Reset it to 0 when attack is completed
-		protected int ticksSinceSpawn = 0;
-		protected List<int> spawns = new();
-
-		protected Vector2 deathHailTargetPos;
-        protected Vector2 currentChargeVelocity;
-		protected Player targetPlayer;
-
-		//Damage values are designed for Master Death mode originally (first number) and are scaled appropriately (second number, the multiplier) 
-		protected static int targetDamage_nonPredictiveCharge = (int)(1250*0.4);
-        protected static int targetDamage_predictiveCharge = (int)(950*0.4);
-		protected static int targetDamage_cloneCharge = (int)(850 * 0.4);
-        protected static int targetDamage_supremeWaterBolt_contact = (int)(860 * 0.2);
-		protected static int targetDamage_supremeWaterBolt_ascending = (int)(690 * 0.2);
-		protected static int targetDamage_waterTide = (int)(1250 * 0.2);
-		protected static int targetDamage_steamBreath = (int)(1250 * 0.2);
-		protected static int targetDamage_waterDeathhail = (int)(840*0.2);
-		protected static int targetDamage_predictiveWaterArrow = (int)(910 * 0.2);
     }
 
     [AutoloadBossHead]

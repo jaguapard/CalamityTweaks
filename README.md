@@ -1,6 +1,6 @@
 # CalamityTweaks mod
 
-Requires Calamity Mod to function properly. Design doc below describes current end goals to make (subject to change)
+Requires Calamity Mod to function properly. Design doc below describes current end goals to make (subject to change). Implemented ones will be marked with ✅ mark.
 
 # General Changes
 

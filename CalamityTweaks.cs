@@ -330,8 +330,8 @@ namespace CalamityTweaks.Enemies
 			if (currentAttackTickCounter < 60)
 			{
 				if (attackType == 0) waterBoltSequence(3, 10, 0);
-				if (attackType == 1) waterBoltShotgun(5, 60, 20);
-				if (attackType == 2) waterBoltWall(5, 60, 40);
+				if (attackType == 1) waterBoltShotgun(5, 60, 40);
+				if (attackType == 2) waterBoltWall(5, 60, 80);
 			}
 			else ChargeAttack(80, 200, 250, 1000, 0);
 

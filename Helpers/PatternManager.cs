@@ -13,8 +13,8 @@ namespace CalamityTweaks.Helpers
         }
     }
 
-    public delegate void PatternAttackDelegate();
-    class PatternAttack
+    public delegate void PatternAttackDelegate(int currentAttackTick);
+    public class PatternAttack
     {
         public PatternAttack(int durationTicks, PatternAttackDelegate del, int startTick)
         {
@@ -32,7 +32,7 @@ namespace CalamityTweaks.Helpers
         }
     }
 
-    class PatternManager
+    public class PatternManager
     {
         private List<PatternAttack> attacks;
         private int currentAttackTick = 0;
@@ -83,7 +83,7 @@ namespace CalamityTweaks.Helpers
 
         public void Attack()
         {
-            if (this.currentAttack != null) currentAttack.attack();
+            if (this.currentAttack != null) currentAttack.attack(currentAttackTick);
         }
 
         public void RecalculateDuration()

@@ -18,11 +18,10 @@ namespace CalamityTweaks.Enemies
     [AutoloadBossHead]
     public class SupremeCnidrion : ModNPC
 	{
-		private PatternManager pm_phase1;
+		protected PatternManager pm_phase1;
         protected int currBossPhase = -1;
         protected int prevBossPhase = -2;
-        protected int ticksInCurrentPhase = 0;
-        protected int currentAttackTickCounter = 0; //how much ticks from beginning of last attack. Reset it to 0 when attack is completed
+        protected int ticksInCurrentPhase = 0;     
         protected int ticksSinceSpawn = 0;
         protected List<int> spawns = new();
 
@@ -105,16 +104,11 @@ namespace CalamityTweaks.Enemies
 				else if (currBossPhase < 3) SetTargetPhase(3);				
 			}
 
-            currentAttackTickCounter++;
-			int patternDurationTicks = 860;
-			int currentPatternTick = ticksInCurrentPhase % patternDurationTicks;
 
 			if (NPC.HasValidTarget && currBossPhase != 3)
 			{
-				if (currentPatternTick >= 0 && currentPatternTick < 320) ChargeAttack(80, 600, 400, 2000, 0);
-				else if (currentPatternTick < 520) WaterBoltAttack(50, (20 * MathF.PI / 180), 4);
-				else if (currentPatternTick < 700) ChargeAttack(90, 400, 300, 1800, 1.5f);
-				else if (currentPatternTick < 860) WaterDeathHailAttack(0.1f, 0.7f, 3, 80, 40);
+				pm_phase1.Advance(1);
+				pm_phase1.Attack();
 			}
 
 			if (currBossPhase != 3)
@@ -132,24 +126,24 @@ namespace CalamityTweaks.Enemies
             ticksSinceSpawn++;
         }
 
-		public void Attacks_NonPredictiveCharge()
+		public void Attacks_NonPredictiveCharge(int currentAttackTick)
 		{
-			ChargeAttack(80, 600, 400, 2000, 0);
+			ChargeAttack(80, 600, 400, 2000, 0, currentAttackTick);
         }
 		
-		public void Attacks_WaterBolt()
+		public void Attacks_WaterBolt(int currentAttackTick)
 		{
-            WaterBoltAttack(50, (20 * MathF.PI / 180), 4);
+            WaterBoltAttack(50, (20 * MathF.PI / 180), 4, currentAttackTick);
         }
 
-		public void Attacks_PredictiveCharge()
+		public void Attacks_PredictiveCharge(int currentAttackTick)
 		{
-            ChargeAttack(90, 400, 300, 1800, 1.5f);
+            ChargeAttack(90, 400, 300, 1800, 1.5f, currentAttackTick);
         }
 
-		public void Attacks_WaterDeathHail()
+		public void Attacks_WaterDeathHail(int currentAttackTick)
 		{
-            WaterDeathHailAttack(0.1f, 0.7f, 3, 80, 40);
+            WaterDeathHailAttack(0.1f, 0.7f, 3, 80, 40, currentAttackTick);
         }
 
 		public bool IsAnySpawnAlive()
@@ -210,11 +204,11 @@ namespace CalamityTweaks.Enemies
 				}
 			}
 		}
-		protected void ChargeAttack(int targetTickDuration, float minDist, float playerOffset, float maxDist, float predictiveness)
+		protected void ChargeAttack(int targetTickDuration, float minDist, float playerOffset, float maxDist, float predictiveness, int currentAttackTick)
 		{
 			int idleTicks = targetTickDuration / 3;
 
-            if (currentAttackTickCounter == idleTicks)
+            if (currentAttackTick == idleTicks)
 			{
                 int chargeTickDuration = targetTickDuration / 3;
                 Vector2 targetPos = targetPlayer.Center + targetPlayer.velocity * (chargeTickDuration*0.5f) * predictiveness;
@@ -227,30 +221,21 @@ namespace CalamityTweaks.Enemies
 				this.currentChargeVelocity = (chargeTargetPoint - NPC.Center) / chargeTickDuration;
 			}
 
-			if (currentAttackTickCounter < idleTicks || currentAttackTickCounter > targetTickDuration - idleTicks) NPC.velocity = Vector2.Zero;
+			if (currentAttackTick < idleTicks || currentAttackTick > targetTickDuration - idleTicks) NPC.velocity = Vector2.Zero;
 			else
 			{
 				NPC.velocity = this.currentChargeVelocity;
             }
-
-			if (currentAttackTickCounter == targetTickDuration)
-			{
-                currentAttackTickCounter = 0;
-			}
         }
 
-		protected void WaterBoltAttack(int boltCount, float maxSpreadRadians, int ticksPerBolt)
+		protected void WaterBoltAttack(int boltCount, float maxSpreadRadians, int ticksPerBolt, int currentAttackTick) //TODO: fix this attack's weirdness
 		{
 			NPC.velocity = Vector2.Zero;
 
             int fullAttackDuration = ticksPerBolt * (boltCount-1);
-			if (currentAttackTickCounter > fullAttackDuration)
-			{
-				currentAttackTickCounter = 0;
-				return;
-			}
+			if (currentAttackTick > fullAttackDuration) return;
 
-			if (currentAttackTickCounter % ticksPerBolt == 0)
+			if (currentAttackTick % ticksPerBolt == 0)
 			{
                 if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
                 {					 
@@ -261,9 +246,9 @@ namespace CalamityTweaks.Enemies
 
 					float radius = direction.Length();
 					float targetAngle = position.AngleTo(targetPosition);
-					float currentSpreadPhase = (float)(currentAttackTickCounter) / fullAttackDuration; //from 0 to 1
+					float currentSpreadPhase = (float)(currentAttackTick) / fullAttackDuration; //from 0 to 1
 					float spreadPhaseAdjusted = currentSpreadPhase - 0.5f; //from -0.5 to 0.5
-					float alterationModifier = ((currentAttackTickCounter / ticksPerBolt) % 2) * 2 - 1; //-1 and 1. Makes bolts converge onto the player
+					float alterationModifier = ((currentAttackTick / ticksPerBolt) % 2) * 2 - 1; //-1 and 1. Makes bolts converge onto the player
 					float projectileAngle = targetAngle + maxSpreadRadians * spreadPhaseAdjusted * alterationModifier;
 
 					direction = new Vector2(radius * MathF.Cos(projectileAngle), radius * MathF.Sin(projectileAngle));
@@ -276,16 +261,16 @@ namespace CalamityTweaks.Enemies
             }
 		}
 
-		protected void WaterDeathHailAttack(float safeSpaceSize, float maxFirstRoll, int ticksPerBolt, int boltCount, int delayTicks) //boltCount must be even.
+		protected void WaterDeathHailAttack(float safeSpaceSize, float maxFirstRoll, int ticksPerBolt, int boltCount, int delayTicks, int currentAttackTick) //boltCount must be even.
 		{
             int fullAttackDuration = boltCount / 2 * ticksPerBolt;
             NPC.velocity = Vector2.Zero;
-            if (currentAttackTickCounter < delayTicks) return;
+            if (currentAttackTick < delayTicks) return;
 
-			int attackCycleTick = currentAttackTickCounter - delayTicks;
+			int attackCycleTick = currentAttackTick - delayTicks;
 			if (attackCycleTick % ticksPerBolt != 0) return;
 
-			if (currentAttackTickCounter == delayTicks)
+			if (currentAttackTick == delayTicks)
 			{
 				Random r = new();
 				this.NPC.ai[0] = (float)r.NextDouble() * maxFirstRoll;
@@ -331,84 +316,91 @@ namespace CalamityTweaks.Enemies
         }
     }
 
-    [AutoloadBossHead]
-    public class SupremeCnidrionClone : SupremeCnidrion
+	[AutoloadBossHead]
+	public class SupremeCnidrionClone : SupremeCnidrion
 	{
-        protected float orbitRadianOffset;
+		protected float orbitRadianOffset;
+		protected PatternManager pm_phase2;
 
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Supreme Cnidrion Spawn");
-        }
-        public override void SetDefaults()
-        {
-            NPC.width = 365/3;
-            NPC.height = 236/3;
+		public override void SetStaticDefaults()
+		{
+			DisplayName.SetDefault("Supreme Cnidrion Spawn");
+		}
+		public override void SetDefaults()
+		{
+			NPC.width = 365 / 3;
+			NPC.height = 236 / 3;
 			NPC.damage = 0;
-            NPC.defense = 110;
-            NPC.lifeMax = 1500000;
-            NPC.knockBackResist = 0;
-            NPC.value = Item.buyPrice(platinum: 3);
-            NPC.aiStyle = -1;
+			NPC.defense = 110;
+			NPC.lifeMax = 1500000;
+			NPC.knockBackResist = 0;
+			NPC.value = Item.buyPrice(platinum: 3);
+			NPC.aiStyle = -1;
 
-            NPC.boss = true;
-            NPC.noGravity = true;
-            NPC.lavaImmune = true;
-            NPC.noTileCollide = true;
+			NPC.boss = true;
+			NPC.noGravity = true;
+			NPC.lavaImmune = true;
+			NPC.noTileCollide = true;
+			orbitRadianOffset = NPC.ai[0] * 120.0f * MathF.PI / 180.0f;
 
-			orbitRadianOffset = NPC.ai[0] * 120.0f * MathF.PI / 180.0f;			
-        }
+			int attackType = (int)NPC.ai[0] % 3;
+			if (attackType == 0) pm_phase1.AddAttack(120, Attacks_WaterBoltSequence);
+			if (attackType == 1) pm_phase1.AddAttack(120, Attacks_WaterBoltShotgun);
+			if (attackType == 2) pm_phase1.AddAttack(120, Attacks_WaterBoltWall);
 
-        public override void AI()
-        {
-            NPC.TargetClosestUpgraded(true);
-            NPC.FaceTarget();
-            this.targetPlayer = Main.player[NPC.target];
+			pm_phase2 = pm_phase1;
+			pm_phase2.AddAttack(80, Attacks_SpawnCharge);
+		}
+
+		public override void AI()
+		{
+			NPC.TargetClosestUpgraded(true);
+			NPC.FaceTarget();
+			this.targetPlayer = Main.player[NPC.target];
 
 			ticksInCurrentPhase++;
 			bool isFreeMoving = NPC.ai[1] > 0;
-			NPC.damage = isFreeMoving ? targetDamage_cloneCharge : 0;
 
-			int patternDuration = isFreeMoving ? 200 : 120;
-            int patternTick = ticksSinceSpawn % patternDuration;
-			int attackType = (int)NPC.ai[0] % 3;
-			currentAttackTickCounter++;
-
-			if (patternTick < 120) //TODO: stop attacking when main one is performing water deathhail
+			if (isFreeMoving)
 			{
-				if (attackType == 0) waterBoltSequence(3, 10, 0, 120);
-				if (attackType == 1) waterBoltShotgun(5, 60, 40, 120);
-				if (attackType == 2) waterBoltWall(5, 60, 80, 120);
-			}
-			else ChargeAttack(80, 200, 250, 1000, 0);
-
-            ticksSinceSpawn++;
-        }
-
-		public void Attacks_WaterBoltSequence()
-		{
-			waterBoltSequence(3, 10, 0, 120);
-        }
-
-		public void Attacks_WaterBoltShotgun()
-		{
-            waterBoltShotgun(5, 60, 40, 120);
-        }
-
-		public void Attacks_WaterBoltWall()
-		{
-            waterBoltWall(5, 60, 80, 120);
-        }
-
-		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int delayTicks, int totalDurationTicks)
-		{
-			if (currentAttackTickCounter < delayTicks) return;
-			if ((currentAttackTickCounter - delayTicks) % ticksPerBolt != 0) return;
-			if (currentAttackTickCounter > delayTicks + ticksPerBolt * projectileCount)
+				NPC.damage = targetDamage_cloneCharge;
+                pm_phase1.Advance(1);
+                pm_phase1.Attack();
+            }
+			else
 			{
-				currentAttackTickCounter = 0;
-				return;
+				NPC.damage = 0;
+				pm_phase2.Advance(1);
+				pm_phase2.Attack();
 			}
+
+			ticksSinceSpawn++;
+		}
+
+		public void Attacks_WaterBoltSequence(int currentAttackTick)
+		{
+			waterBoltSequence(3, 10, 0, 120, currentAttackTick);
+		}
+
+		public void Attacks_WaterBoltShotgun(int currentAttackTick)
+		{
+			waterBoltShotgun(5, 60, 40, 120, currentAttackTick);
+		}
+
+		public void Attacks_WaterBoltWall(int currentAttackTick)
+		{
+			waterBoltWall(5, 60, 80, 120, currentAttackTick);
+		}
+
+		public void Attacks_SpawnCharge(int currentAttackTick)
+		{
+			ChargeAttack(80, 200, 250, 1000, 0, currentAttackTick);
+        }
+		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int delayTicks, int totalDurationTicks, int currentAttackTick)
+		{
+			if (currentAttackTick < delayTicks) return;
+			if ((currentAttackTick - delayTicks) % ticksPerBolt != 0) return;
+			if (currentAttackTick > delayTicks + ticksPerBolt * projectileCount) return;
 
             if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
             {
@@ -425,27 +417,21 @@ namespace CalamityTweaks.Enemies
             }
         }
 
-		protected void waterBoltShotgun(int projectileCount, float maxSpreadDegrees, int delayTicks, int totalDurationTicks)
+		protected void waterBoltShotgun(int projectileCount, float maxSpreadDegrees, int delayTicks, int totalDurationTicks, int currentAttackTick)
 		{
-            if (currentAttackTickCounter >= totalDurationTicks)
-            {
-                currentAttackTickCounter = 0;
-                return;
-            }
-            if (currentAttackTickCounter == delayTicks && NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
+            if (currentAttackTick == delayTicks && NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
             {
 				float maxSpreadRadians = maxSpreadDegrees * MathF.PI / 180;
                 var source = NPC.GetSource_FromAI();
                 Vector2 position = NPC.Center;
-                Vector2 targetPosition = targetPlayer.Center;
-                Vector2 direction = targetPosition - position;
+                Vector2 targetPosition = targetPlayer.Center;                
                 float targetAngle = position.AngleTo(targetPosition);
 
 				for (int i = 0; i < projectileCount; ++i)
 				{
 					float angleScale = (float)i / projectileCount - 0.5f;
 					float projectileAngle = targetAngle + maxSpreadRadians * angleScale;
-					direction = new Vector2(MathF.Cos(projectileAngle), MathF.Sin(projectileAngle));
+					Vector2 direction = new(MathF.Cos(projectileAngle), MathF.Sin(projectileAngle));
 					direction.Normalize();
 					float speed = 14f;
 					int type = ProjectileID.PinkLaser; //TODO: change it to something watery
@@ -455,14 +441,9 @@ namespace CalamityTweaks.Enemies
             }         
 		}
 
-		protected void waterBoltWall(int projectileCount, int maxPixelSeparation, int delayTicks, int totalDurationTicks)
+		protected void waterBoltWall(int projectileCount, int maxPixelSeparation, int delayTicks, int totalDurationTicks, int currentAttackTick)
 		{
-			if (currentAttackTickCounter >= totalDurationTicks)
-			{
-				currentAttackTickCounter = 0;
-				return;
-			}
-            if (currentAttackTickCounter == delayTicks && NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
+            if (currentAttackTick == delayTicks && NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
             {
                 var source = NPC.GetSource_FromAI();
                 Vector2 position = NPC.Center;

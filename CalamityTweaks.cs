@@ -295,8 +295,8 @@ namespace CalamityTweaks.Enemies
         }
         public override void SetDefaults()
         {
-            NPC.width = 365/2;
-            NPC.height = 236/2;
+            NPC.width = 365/3;
+            NPC.height = 236/3;
 			//NPC.damage = (int)(850*0.4);
 			NPC.damage = 0;
             NPC.defense = 110;

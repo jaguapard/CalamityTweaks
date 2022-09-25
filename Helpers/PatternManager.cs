@@ -34,7 +34,7 @@ namespace CalamityTweaks.Helpers
 
     public class PatternManager
     {
-        private List<PatternAttack> attacks;
+        private List<PatternAttack> attacks = new();
         private int currentAttackTick = 0;
         private int currentPatternTick = 0;
         private int patternDurationTicks = 0;

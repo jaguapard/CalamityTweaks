@@ -18,7 +18,7 @@ namespace CalamityTweaks.Enemies
     [AutoloadBossHead]
     public class SupremeCnidrion : ModNPC
 	{
-		protected PatternManager pm_phase1;
+		protected PatternManager pm_phase1 = new();
         protected int currBossPhase = -1;
         protected int prevBossPhase = -2;
         protected int ticksInCurrentPhase = 0;     
@@ -75,7 +75,8 @@ namespace CalamityTweaks.Enemies
 
 		public override void AI()
 		{
-            NPC.TargetClosestUpgraded(true);			            
+            NPC.TargetClosestUpgraded(true);
+            this.targetPlayer = Main.player[NPC.target];
             ticksInCurrentPhase++;
 
 			float lifePct = NPC.GetLifePercent();
@@ -96,22 +97,23 @@ namespace CalamityTweaks.Enemies
 				pm_phase1.Attack();
 			}
 
-			if (currBossPhase != 3)
-			{
-				int orbitTick = ticksSinceSpawn % 600;
-				for (int i = 0; i < spawns.Count; ++i)
-				{
-					if (Main.npc[spawns[i]].netID != ModContent.NPCType<SupremeCnidrionClone>()) continue;
-
-					float currentAngle = 2 * i * MathF.PI / 3.0f + orbitTick / 300.0f * MathF.PI;
-					Main.npc[spawns[i]].position = this.NPC.position + new Vector2(300.0f * MathF.Sin(currentAngle), 300.0f * MathF.Cos(currentAngle));
-				}
-			}
-
+			if (currBossPhase == 2) HandleSpawnsOrbiting();
             ticksSinceSpawn++;
         }
 
-		public void Attacks_NonPredictiveCharge(int currentAttackTick)
+		private void HandleSpawnsOrbiting()
+        {
+            int orbitTick = ticksSinceSpawn % 600;
+            for (int i = 0; i < spawns.Count; ++i)
+            {
+                if (Main.npc[spawns[i]].netID != ModContent.NPCType<SupremeCnidrionClone>()) continue;
+
+                float currentAngle = 2 * i * MathF.PI / 3.0f + orbitTick / 300.0f * MathF.PI;
+                Main.npc[spawns[i]].position = this.NPC.position + new Vector2(300.0f * MathF.Sin(currentAngle), 300.0f * MathF.Cos(currentAngle));
+            }
+        }
+
+        public void Attacks_NonPredictiveCharge(int currentAttackTick)
 		{
 			ChargeAttack(80, 600, 400, 2000, 0, currentAttackTick);
         }
@@ -305,7 +307,7 @@ namespace CalamityTweaks.Enemies
 	public class SupremeCnidrionClone : SupremeCnidrion
 	{
 		protected float orbitRadianOffset;
-		protected PatternManager pm_phase2;
+		protected PatternManager pm_phase2 = new();
 
 		public override void SetStaticDefaults()
 		{

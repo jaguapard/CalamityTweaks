@@ -223,7 +223,7 @@ namespace CalamityTweaks.Enemies
 
 			if (currentAttackTickCounter == delayTicks)
 			{
-				Random r = new Random();
+				Random r = new();
 				this.NPC.ai[0] = (float)r.NextDouble() * maxFirstRoll;
 			}
 
@@ -235,7 +235,7 @@ namespace CalamityTweaks.Enemies
             {
                 var source = NPC.GetSource_FromAI();
                 Vector2 position = targetPlayer.Center - new Vector2(960f, 540f);
-				Vector2 direction = new Vector2(0f, 1f);
+				Vector2 direction = new(0f, 1f);
 
                 direction.Normalize();
                 float speed = 6f;
@@ -243,8 +243,8 @@ namespace CalamityTweaks.Enemies
                 int damage = targetDamage_waterDeathhail;
 				Vector2 adjDir = direction * speed;
 
-				Vector2 leftOffset = new Vector2(leftProjectileSpacing * projectileNumber, 0f);
-				Vector2 rightOffset = new Vector2(1920f - rightProjectileSpacing * projectileNumber, 0f);
+				Vector2 leftOffset = new(leftProjectileSpacing * projectileNumber, 0f);
+				Vector2 rightOffset = new(1920f - rightProjectileSpacing * projectileNumber, 0f);
                 Projectile.NewProjectile(source, position + leftOffset, adjDir, type, damage, 0f, Main.myPlayer);
                 Projectile.NewProjectile(source, position + rightOffset, adjDir, type, damage, 0f, Main.myPlayer);
             }
@@ -271,7 +271,7 @@ namespace CalamityTweaks.Enemies
         protected int ticksInCurrentPhase = 0;
 		protected int currentAttackTickCounter = 0; //how much ticks from beginning of last attack. Reset it to 0 when attack is completed
 		protected int ticksSinceSpawn = 0;
-		protected List<int> spawns = new List<int>();
+		protected List<int> spawns = new();
 
 		protected Vector2 deathHailTargetPos;
         protected Vector2 currentChargeVelocity;
@@ -395,7 +395,7 @@ namespace CalamityTweaks.Enemies
                 Vector2 position = NPC.Center;
                 Vector2 targetPosition = targetPlayer.Center;
                 Vector2 direction = targetPosition - position;
-				Vector2 perpendicular = new Vector2(direction.Y, -direction.X);
+				Vector2 perpendicular = new(direction.Y, -direction.X);
 				perpendicular.Normalize();
 
 				for (int i = 0; i < projectileCount; ++i)

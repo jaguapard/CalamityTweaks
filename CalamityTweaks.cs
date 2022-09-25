@@ -97,6 +97,26 @@ namespace CalamityTweaks.Enemies
             ticksSinceSpawn++;
         }
 
+		public void Attacks_NonPredictiveCharge()
+		{
+			ChargeAttack(80, 600, 400, 2000, 0);
+        }
+		
+		public void Attacks_WaterBolt()
+		{
+            WaterBoltAttack(50, (20 * MathF.PI / 180), 4);
+        }
+
+		public void Attacks_PredictiveCharge()
+		{
+            ChargeAttack(90, 400, 300, 1800, 1.5f);
+        }
+
+		public void Attacks_WaterDeathHail()
+		{
+            WaterDeathHailAttack(0.1f, 0.7f, 3, 80, 40);
+        }
+
 		public bool IsAnySpawnAlive()
 		{
 			foreach (var s in spawns)
@@ -350,6 +370,21 @@ namespace CalamityTweaks.Enemies
 			else ChargeAttack(80, 200, 250, 1000, 0);
 
             ticksSinceSpawn++;
+        }
+
+		public void Attacks_WaterBoltSequence()
+		{
+			waterBoltSequence(3, 10, 0, 120);
+        }
+
+		public void Attacks_WaterBoltShotgun()
+		{
+            waterBoltShotgun(5, 60, 40, 120);
+        }
+
+		public void Attacks_WaterBoltWall()
+		{
+            waterBoltWall(5, 60, 80, 120);
         }
 
 		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int delayTicks, int totalDurationTicks)

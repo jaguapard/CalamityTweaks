@@ -74,6 +74,7 @@ namespace CalamityTweaks.Helpers
             {
                 currentAttackTick = currentPatternTick - currentAttack.startTick;
             }
+            currentPatternTick %= patternDurationTicks;
         }
 
         /*public void Reset()

@@ -71,12 +71,13 @@ namespace CalamityTweaks.Enemies
 				.AddAttack(90, Attacks_PredictiveCharge)
 				.AddAttack(90, Attacks_PredictiveCharge)
 				.AddAttack(140, Attacks_WaterDeathHail)
-				.AddAttack(60, Attacks_DoNothing); //prevent cheap hits after deathhail
+				.AddAttack(120, Attacks_DoNothing); //prevent cheap hits after deathhail
         }
 
 		public override void AI()
 		{
             NPC.TargetClosestUpgraded(true);
+			if (!NPC.HasValidTarget) NPC.velocity.Y += 1;
             this.targetPlayer = Main.player[NPC.target];
             ticksInCurrentPhase++;
 
@@ -92,13 +93,33 @@ namespace CalamityTweaks.Enemies
 				else if (currBossPhase < 3) SetTargetPhase(3);				
 			}
 
-			if (NPC.HasValidTarget && currBossPhase != 3)
+            if (NPC.HasValidTarget && currBossPhase < 3)
+            {
+                pm_phase1.Advance(1);
+                pm_phase1.Attack();
+            }
+            if (currBossPhase == 2) HandleSpawnsOrbiting();
+			if (currBossPhase == 3 && NPC.HasValidTarget) NPC.position = targetPlayer.Center; //HACK: follow player to prevent despawning
+			if (currBossPhase == 4)
 			{
-				pm_phase1.Advance(1);
-				pm_phase1.Attack();
+				if (ticksInCurrentPhase < 300)
+				{
+					float visibilityProgress = ticksInCurrentPhase / 300f;
+					NPC.alpha = (int)(255f * (1 - visibilityProgress));
+				}
+				else if (ticksInCurrentPhase == 300)
+				{
+                    NPC.alpha = 0;
+                    NPC.damage = targetDamage_nonPredictiveCharge;
+                    NPC.immortal = false;
+                }
+				else
+				{					
+                    pm_phase1.Advance(1);
+                    pm_phase1.Attack();
+                }
 			}
-
-			if (currBossPhase == 2) HandleSpawnsOrbiting();
+			
             ticksSinceSpawn++;
         }
 
@@ -134,9 +155,8 @@ namespace CalamityTweaks.Enemies
             WaterDeathHailAttack(0.1f, 0.7f, 3, 80, 40, currentAttackTick);
         }
 
-		public void Attacks_DoNothing(int currentAttackTick)
-		{
-			//intentionally blank, used in pattern manager to delay attacks
+		public void Attacks_DoNothing(int currentAttackTick) //intentionally blank, used in pattern manager to delay attacks
+        {			
 		}
 
 		public bool IsAnySpawnAlive()
@@ -179,7 +199,7 @@ namespace CalamityTweaks.Enemies
 					NPC.damage = 0;
                     for (int i = 0; i < 3; ++i)
                     {
-                        spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 200, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i, ai1: 0));
+                        spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 200, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: 3+i, ai1: 1));
                     }
 
                     foreach (var s in spawns)
@@ -190,10 +210,7 @@ namespace CalamityTweaks.Enemies
 
 				if (phase == 4)
 				{
-					Talk("Time to get serious!");
-					NPC.alpha = 0; //set to opaque
-					NPC.damage = targetDamage_nonPredictiveCharge;
-					NPC.immortal = false;
+					Talk("Time to get serious!");					
 				}
 			}
 		}
@@ -336,7 +353,8 @@ namespace CalamityTweaks.Enemies
 			NPC.noTileCollide = true;
 			orbitRadianOffset = NPC.ai[0] * 120.0f * MathF.PI / 180.0f;
 
-			int attackType = (int)NPC.ai[0] % 3;
+			int attackType = (int)NPC.ai[0] % 3; //WHY THE FUCK IS IT ALWAYS 0????
+			Talk(attackType.ToString());
 			if (attackType == 0)
 			{
 				pm_phase1.AddAttack(120, Attacks_WaterBoltSequence);

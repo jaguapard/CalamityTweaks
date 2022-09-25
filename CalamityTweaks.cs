@@ -41,11 +41,20 @@ namespace CalamityTweaks.Enemies
 
 		public override void AI()
 		{
-            NPC.TargetClosestUpgraded(true);
-			if (!NPC.HasValidTarget) this.NPC.velocity.Y += 1f;
+            NPC.TargetClosestUpgraded(true);			
 
-			NPC.FaceTarget();
-            this.targetPlayer = Main.player[NPC.target];
+			if (NPC.HasValidTarget)
+			{
+                this.targetPlayer = Main.player[NPC.target];
+                if ((targetPlayer.position - NPC.position).X > 0) NPC.direction = 1;
+				else NPC.direction = -1;
+			}
+			else 
+			{
+                this.NPC.velocity.Y += 1f;
+				this.targetPlayer = null;
+            }
+            
             ticksInCurrentPhase++;
 
 			float lifePct = NPC.GetLifePercent();
@@ -238,7 +247,7 @@ namespace CalamityTweaks.Enemies
 				Vector2 direction = new(0f, 1f);
 
                 direction.Normalize();
-                float speed = 6f;
+                float speed = 4.5f;
                 int type = ProjectileID.PinkLaser; //TODO: change it to something watery
                 int damage = targetDamage_waterDeathhail;
 				Vector2 adjDir = direction * speed;
@@ -409,7 +418,5 @@ namespace CalamityTweaks.Enemies
 				}
             }
         }
-    }
-
-	
+    }	
 }

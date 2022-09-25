@@ -61,7 +61,7 @@ namespace CalamityTweaks.Enemies
 
 			if (lifePct > 0.60) SetTargetPhase(1);
 			else if (lifePct > 0.30) SetTargetPhase(2);
-			else //TODO: FIX: transition to phase 4 doesn't work
+			else
 			{
 				if (currBossPhase == 3)
 				{
@@ -133,7 +133,7 @@ namespace CalamityTweaks.Enemies
 				{
 					Talk("Alright, I'll leave fighting to the little ones for now");
 					NPC.immortal = true;
-					NPC.alpha = 1;
+					NPC.alpha = 255; //set to transparent
 					NPC.damage = 0;
                     for (int i = 0; i < 3; ++i)
                     {
@@ -149,7 +149,7 @@ namespace CalamityTweaks.Enemies
 				if (phase == 4)
 				{
 					Talk("Time to get serious!");
-					NPC.alpha = 255;
+					NPC.alpha = 0; //set to opaque
 					NPC.damage = targetDamage_nonPredictiveCharge;
 					NPC.immortal = false;
 				}
@@ -333,7 +333,8 @@ namespace CalamityTweaks.Enemies
             this.targetPlayer = Main.player[NPC.target];
 
 			ticksInCurrentPhase++;
-			bool isFreeMoving = (NPC.ai[1] > 0);
+			//Talk(NPC.ai[1].ToString());
+			bool isFreeMoving = NPC.ai[1] > 0;
 			if (isFreeMoving) NPC.damage = targetDamage_cloneCharge;
 
 			currentAttackTickCounter = ticksSinceSpawn % (isFreeMoving ? 200 : 120);

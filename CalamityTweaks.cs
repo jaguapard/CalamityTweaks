@@ -391,8 +391,43 @@ namespace CalamityTweaks.Enemies
 	[AutoloadBossHead]
 	public class SupremeCnidrionClone : SupremeCnidrion
 	{
-		protected float orbitRadianOffset;
 		protected PatternManager pm_phase2 = new();
+
+		public static class CloneNumbers
+		{
+			public static class Charge
+			{
+                public static int   Ticks = 80;
+                public static float MinDist = 200f;
+                public static float PlayerOffset = 250f;
+                public static float MaxDist = 1000f;
+                public static float Predictiveness = 0.0f;
+            }
+
+            public static class WaterBoltSequence
+			{
+                public static int ProjectileCount = 3;
+                public static int TicksPerBolt = 10;
+				public static int TicksDuration = 120;
+            }
+
+            public static class WaterBoltShotgun
+            {
+				public static int   PreIdleTicks = 39;                
+                public static int   PostIdleTicks = 80;
+                public static int	ProjectileCount = 5;
+                public static float MaxSpreadDegrees = 60; 
+            }
+
+            public static class WaterBoltWall
+            {
+                public static int PreIdleTicks = 79;
+                public static int PostIdleTicks = 40;
+                public static int ProjectileCount = 5;
+                public static int MaxPixelSpread = 60;
+            }
+
+        }
 
 		public override void SetStaticDefaults()
 		{
@@ -413,7 +448,6 @@ namespace CalamityTweaks.Enemies
 			NPC.noGravity = true;
 			NPC.lavaImmune = true;
 			NPC.noTileCollide = true;
-			orbitRadianOffset = NPC.ai[0] * 120.0f * MathF.PI / 180.0f;			
 		}
 
 		public override void AI()
@@ -431,23 +465,23 @@ namespace CalamityTweaks.Enemies
                 Talk(attackType.ToString());
                 if (attackType == 0)
                 {
-                    pm_phase1.AddAttack(120, Attacks_WaterBoltSequence);
+                    pm_phase1.AddAttack(CloneNumbers.WaterBoltSequence.TicksDuration, Attacks_WaterBoltSequence);
                 }
                 if (attackType == 1)
                 {
-                    pm_phase1.AddAttack(39, Attacks_DoNothing);
+                    pm_phase1.AddAttack(CloneNumbers.WaterBoltShotgun.PreIdleTicks, Attacks_DoNothing);
                     pm_phase1.AddAttack(1, Attacks_WaterBoltShotgun);
-                    pm_phase1.AddAttack(40, Attacks_DoNothing);
+                    pm_phase1.AddAttack(CloneNumbers.WaterBoltShotgun.PostIdleTicks, Attacks_DoNothing);
                 }
                 if (attackType == 2)
                 {
-                    pm_phase1.AddAttack(79, Attacks_DoNothing);
+                    pm_phase1.AddAttack(CloneNumbers.WaterBoltWall.PreIdleTicks, Attacks_DoNothing);
                     pm_phase1.AddAttack(1, Attacks_WaterBoltWall);
-                    pm_phase1.AddAttack(40, Attacks_DoNothing);
+                    pm_phase1.AddAttack(CloneNumbers.WaterBoltWall.PostIdleTicks, Attacks_DoNothing);
                 }
 
                 pm_phase2 = pm_phase1;
-                pm_phase2.AddAttack(80, Attacks_SpawnCharge);
+                pm_phase2.AddAttack(CloneNumbers.Charge.Ticks, Attacks_SpawnCharge);
             }
 
 			if (isFreeMoving)
@@ -468,22 +502,22 @@ namespace CalamityTweaks.Enemies
 
 		public void Attacks_WaterBoltSequence(int currentAttackTick)
 		{
-			waterBoltSequence(3, 10, currentAttackTick);
+			waterBoltSequence(CloneNumbers.WaterBoltSequence.ProjectileCount, CloneNumbers.WaterBoltSequence.TicksPerBolt, currentAttackTick);
 		}
 
 		public void Attacks_WaterBoltShotgun(int currentAttackTick)
 		{
-			waterBoltShotgun(5, 60, currentAttackTick);
+			waterBoltShotgun(CloneNumbers.WaterBoltShotgun.ProjectileCount, CloneNumbers.WaterBoltShotgun.MaxSpreadDegrees, currentAttackTick);
 		}
 
 		public void Attacks_WaterBoltWall(int currentAttackTick)
 		{
-			waterBoltWall(5, 60, currentAttackTick);
+			waterBoltWall(CloneNumbers.WaterBoltWall.ProjectileCount, CloneNumbers.WaterBoltWall.MaxPixelSpread, currentAttackTick);
 		}
 
 		public void Attacks_SpawnCharge(int currentAttackTick)
 		{
-			ChargeAttack(80, 200, 250, 1000, 0, currentAttackTick); 
+			ChargeAttack(CloneNumbers.Charge.Ticks, CloneNumbers.Charge.MinDist, CloneNumbers.Charge.PlayerOffset, CloneNumbers.Charge.MaxDist, 0, currentAttackTick); 
         }
 
 		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int currentAttackTick)
@@ -497,7 +531,7 @@ namespace CalamityTweaks.Enemies
                 Vector2 direction = targetPosition - position;
 
                 direction.Normalize();
-                float speed = 14f;
+                float speed = Numbers.SupremeWaterBoltSpray.ProjectileSpeed;
                 int type = ProjectileID.PinkLaser; //TODO: change it to something watery
                 int damage = Damage.SupremeWaterBolt;
                 Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
@@ -520,8 +554,8 @@ namespace CalamityTweaks.Enemies
 					float projectileAngle = targetAngle + maxSpreadRadians * angleScale;
 					Vector2 direction = new(MathF.Cos(projectileAngle), MathF.Sin(projectileAngle));
 					direction.Normalize();
-					float speed = 14f;
-					int type = ProjectileID.PinkLaser; //TODO: change it to something watery
+                    float speed = Numbers.SupremeWaterBoltSpray.ProjectileSpeed;
+                    int type = ProjectileID.PinkLaser; //TODO: change it to something watery
 					int damage = Damage.SupremeWaterBolt;
 					Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
 				}
@@ -543,8 +577,8 @@ namespace CalamityTweaks.Enemies
 				{
 					Vector2 direction2 = direction + perpendicular * ((float)i / projectileCount - 0.5f) * maxPixelSeparation;
 					direction2.Normalize();
-					float speed = 14f;
-					int type = ProjectileID.PinkLaser; //TODO: change it to something watery
+                    float speed = Numbers.SupremeWaterBoltSpray.ProjectileSpeed;
+                    int type = ProjectileID.PinkLaser; //TODO: change it to something watery
 					int damage = Damage.SupremeWaterBolt;
 					Projectile.NewProjectile(source, position, direction2 * speed, type, damage, 0f, Main.myPlayer);
 				}

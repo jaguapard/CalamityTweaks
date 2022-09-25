@@ -50,6 +50,11 @@ namespace CalamityTweaks.Helpers
             return this;
         }
 
+        public bool IsEmpty()
+        {
+            return attacks.Count == 0;
+        }
+
         public void Advance(int ticks = 1)
         {
             currentPatternTick += ticks;

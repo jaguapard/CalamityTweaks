@@ -125,7 +125,7 @@ namespace CalamityTweaks.Enemies
 					if (Main.npc[spawns[i]].netID != ModContent.NPCType<SupremeCnidrionClone>()) continue;
 
 					float currentAngle = 2 * i * MathF.PI / 3.0f + orbitTick / 300.0f * MathF.PI;
-					Main.npc[spawns[i]].position = this.NPC.position + new Vector2(400.0f * MathF.Sin(currentAngle), 400.0f * MathF.Cos(currentAngle));
+					Main.npc[spawns[i]].position = this.NPC.position + new Vector2(300.0f * MathF.Sin(currentAngle), 300.0f * MathF.Cos(currentAngle));
 				}
 			}
 

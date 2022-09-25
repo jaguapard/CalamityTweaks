@@ -8,7 +8,7 @@ Adrenaline now reduces damage you take linearly as it's accumulated when hit. Fo
 
 Rage now increses damage you deal if not triggered by up to 7% multiplicatively 
 
-All health bonuses now stack multiplicatively and take your total HP into account. Numbers are tweaked according to it.
+All health bonuses now stack multiplicatively and take your total HP into account (default behavior is that some items used vanilla's 500 limit, and other - your base HP (up to 600 with fruits)). Numbers are tweaked according to it.
 
 Damage modifiers on accessories now stack multiplicatively rather than additively
 Any crit chance above 100% will now additively increase crit damage by 1% per each excessive percent. Example: 150% crit chance = 100% chance for 250% damage
@@ -20,7 +20,7 @@ Evading attack with a shield or sash dash will no longer trigger any debuffs and
 Fixed Draconic Elixir not giving 16 defense as stated on tooltip
 
 # Accessories
-All "raining X when hit" now deal 200% more damage. Additionaly, they will deal 1% more damage for every damage point you take.
+All "raining X when hit" now deal 200% more damage. Additionaly, they will deal 1% more damage for every damage point you take (calculated before defense and DR).
 
 The Community: defeating a boss will now bring bonuses for all the previous ones too (order on wiki). Now reduces duration of negative DoTs by half rather than reducing their damage
 
@@ -48,11 +48,12 @@ This Seekers look different to normal ones, stay close to Scal and cycles betwee
 Adult Eidolon Wyrm now drops treasure bag when defeated. After AEW is defeated, Brimstone Witch begins to sell Shadowspec and Auric Tesla bars
 
 ## Enchantments
-Most of Calamity's Enchantments are rather poorly balanced in a bad way: downside is too strong and makes weapons less effective on average. But Oblatory Enchantment is busted on slowly firing weapons due to very negligible downside for a gigantic upside.
+Most of Calamity's Enchantments are rather poorly balanced in a bad way: downsides are too strong and make weapons less effective on average. 
+Oblatory Enchantment is busted on slowly firing weapons due to very negligible downside for a gigantic upside.
 
-Aflame: no longer disables your natural life regeneration, instead reducing it by 5. Debuff DPS increased from 2664 to 3000
+Aflame: no longer disables your natural life regeneration, instead reducing it by 5. Debuff DPS increased from 2664 to 3000, enemies aflame recieve 15% more damage.
 
-Lecherous: orb health reduced from 184445 to 120000, increased speed and turn rate by 50%, reduced hearts dropped on death from 7 to 6
+Lecherous: orb health reduced from 184,445 to 120,000, increased speed and turn rate by 50%, reduced hearts dropped on death from 7 to 6
 
 Oblatory: self-damage chance increased from 25% to 100% and damage now proportionally scales with use time of the weapon, 60 use time = 5 health lost, 30 - 2.5, 15 - 1.25, etc. Any fractional damage is moved to next use.
 
@@ -84,7 +85,7 @@ Occult skull crown, calamity, shattered community, 5 shadowspec: combine effects
 
 ## New enemies 
 ### Supreme Cnidrion
-Red eyed Cnidrion, clad in Exo armor, intended to be fought after AEW (Exo mech+Scal maybe?). All stats for master death mode. Summoned by using Seahorse Terror Beacon (crafted with 10 shadowspec and amidas' spark @ draedons forge) :
+Red eyed Cnidrion, clad in Exo armor, intended to be fought after AEW (Exo mech+Scal maybe?). All stats for master death mode. Summoned by using Seahorse Terror Beacon (crafted with 10 Shadowspec and Amidas' Spark @ Draedon's Forge) :
 
 Health: 12,000,000
 DR: 20%

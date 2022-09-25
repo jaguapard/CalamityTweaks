@@ -8,7 +8,7 @@ Adrenaline now reduces damage you take linearly as it's accumulated when hit. Fo
 
 Rage now increses damage you deal if not triggered by up to 7% multiplicatively 
 
-All health bonuses now stack multiplicatively and take your total HP into account (default behavior is that some items used vanilla's 500 limit, and other - your base HP (up to 600 with fruits)). Numbers are tweaked according to it.
+All health bonuses now stack multiplicatively and take your total HP into account (default behavior is that some items used vanilla's 500 limit, and other - your base HP (up to 600 with fruits), and add up additively). Numbers are tweaked according to it.
 
 Damage modifiers on accessories now stack multiplicatively rather than additively
 Any crit chance above 100% will now additively increase crit damage by 1% per each excessive percent. Example: 150% crit chance = 100% chance for 250% damage
@@ -53,7 +53,7 @@ Oblatory Enchantment is busted on slowly firing weapons due to very negligible d
 
 Aflame: no longer disables your natural life regeneration, instead reducing it by 5. Debuff DPS increased from 2664 to 3000, enemies aflame recieve 15% more damage.
 
-Lecherous: orb health reduced from 184,445 to 120,000, increased speed and turn rate by 50%, reduced hearts dropped on death from 7 to 6
+Lecherous: orb health reduced from 184,445 to 120,000, increased Orb's speed and turn rate by 50%, reduced hearts dropped on death from 7 to 6
 
 Oblatory: self-damage chance increased from 25% to 100% and damage now proportionally scales with use time of the weapon, 60 use time = 5 health lost, 30 - 2.5, 15 - 1.25, etc. Any fractional damage is moved to next use.
 
@@ -80,7 +80,7 @@ Every 18 seconds reduces enemy contact damage by half. If this effect is trigger
 
 Survive a fatal hit every 80 seconds. Upon triggering you become fully invulnerable for 4 s and heal 250 hp. While on cooldown, you get extra 3 life regen, 25 defense and 10% damage
 
-##Raging King Crown
+## Raging King Crown
 Occult skull crown, calamity, shattered community, 5 shadowspec: combine effects. 
 
 ## New enemies 

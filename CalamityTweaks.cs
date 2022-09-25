@@ -351,29 +351,7 @@ namespace CalamityTweaks.Enemies
 			NPC.noGravity = true;
 			NPC.lavaImmune = true;
 			NPC.noTileCollide = true;
-			orbitRadianOffset = NPC.ai[0] * 120.0f * MathF.PI / 180.0f;
-
-			int attackType = (int)NPC.ai[0] % 3; //WHY THE FUCK IS IT ALWAYS 0????
-			Talk(attackType.ToString());
-			if (attackType == 0)
-			{
-				pm_phase1.AddAttack(120, Attacks_WaterBoltSequence);
-			}
-			if (attackType == 1)
-			{
-				pm_phase1.AddAttack(39, Attacks_DoNothing);
-				pm_phase1.AddAttack(1, Attacks_WaterBoltShotgun);
-				pm_phase1.AddAttack(40, Attacks_DoNothing);
-			}
-			if (attackType == 2)
-			{
-                pm_phase1.AddAttack(79, Attacks_DoNothing);
-                pm_phase1.AddAttack(1, Attacks_WaterBoltWall);
-                pm_phase1.AddAttack(40, Attacks_DoNothing);
-            }
-
-			pm_phase2 = pm_phase1;
-			pm_phase2.AddAttack(80, Attacks_SpawnCharge);
+			orbitRadianOffset = NPC.ai[0] * 120.0f * MathF.PI / 180.0f;			
 		}
 
 		public override void AI()
@@ -384,6 +362,31 @@ namespace CalamityTweaks.Enemies
 
 			ticksInCurrentPhase++;
 			bool isFreeMoving = NPC.ai[1] > 0;
+
+			if (pm_phase1.IsEmpty())
+			{
+                int attackType = (int)NPC.ai[0] % 3;
+                Talk(attackType.ToString());
+                if (attackType == 0)
+                {
+                    pm_phase1.AddAttack(120, Attacks_WaterBoltSequence);
+                }
+                if (attackType == 1)
+                {
+                    pm_phase1.AddAttack(39, Attacks_DoNothing);
+                    pm_phase1.AddAttack(1, Attacks_WaterBoltShotgun);
+                    pm_phase1.AddAttack(40, Attacks_DoNothing);
+                }
+                if (attackType == 2)
+                {
+                    pm_phase1.AddAttack(79, Attacks_DoNothing);
+                    pm_phase1.AddAttack(1, Attacks_WaterBoltWall);
+                    pm_phase1.AddAttack(40, Attacks_DoNothing);
+                }
+
+                pm_phase2 = pm_phase1;
+                pm_phase2.AddAttack(80, Attacks_SpawnCharge);
+            }
 
 			if (isFreeMoving)
 			{

@@ -14,9 +14,11 @@ namespace CalamityTweaks
 
 namespace CalamityTweaks.Enemies
 {
+	using Helpers;
     [AutoloadBossHead]
     public class SupremeCnidrion : ModNPC
 	{
+		private PatternManager pm_phase1;
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Supreme Cnidrion");			
@@ -36,7 +38,17 @@ namespace CalamityTweaks.Enemies
             NPC.boss = true;
             NPC.noGravity = true;
             NPC.lavaImmune = true;
-            NPC.noTileCollide = true;			
+            NPC.noTileCollide = true;
+
+			pm_phase1
+				.AddAttack(80, Attacks_NonPredictiveCharge)
+				.AddAttack(80, Attacks_NonPredictiveCharge)
+				.AddAttack(80, Attacks_NonPredictiveCharge)
+				.AddAttack(80, Attacks_NonPredictiveCharge)
+				.AddAttack(200, Attacks_WaterBolt)
+				.AddAttack(90, Attacks_PredictiveCharge)
+				.AddAttack(90, Attacks_PredictiveCharge)
+				.AddAttack(140, Attacks_WaterDeathHail);
         }
 
 		public override void AI()

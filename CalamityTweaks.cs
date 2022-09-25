@@ -52,12 +52,14 @@ namespace CalamityTweaks.Enemies
 
 			if (lifePct > 0.60) SetTargetPhase(1);
 			else if (lifePct > 0.30) SetTargetPhase(2);
-			else
+			else //TODO: FIX: transition to phase 4 doesn't work
 			{
-				if (currBossPhase == 3 && !IsAnySpawnAlive()) SetTargetPhase(4);
-				else SetTargetPhase(3);
+				if (currBossPhase == 3)
+				{
+					if (!IsAnySpawnAlive()) SetTargetPhase(4);
+                }				
+				else if (currBossPhase < 3) SetTargetPhase(3);				
 			}
-			//else SetTargetPhase(4);
 
             currentAttackTickCounter++;
 			int patternDurationTicks = 860;
@@ -90,7 +92,7 @@ namespace CalamityTweaks.Enemies
 		{
 			foreach (var s in spawns)
 			{
-                if (Main.npc[s].netID == ModContent.NPCType<SupremeCnidrionClone>()) return true;
+                if (Main.npc[s].netID == ModContent.NPCType<SupremeCnidrionClone>() && Main.npc[s].life > 0) return true;
             }
 			return false;
 		}
@@ -113,7 +115,7 @@ namespace CalamityTweaks.Enemies
 					{
 						for (int i = 0; i < 3; ++i)
 						{
-							spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 100, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i));
+							spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 100, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i, ai1: 0));
 						}						
 					}
 				}
@@ -122,22 +124,25 @@ namespace CalamityTweaks.Enemies
 				{
 					Talk("Alright, I'll leave fighting to the little ones for now");
 					NPC.immortal = true;
-					NPC.alpha = 100;
+					NPC.alpha = 1;
 					NPC.damage = 0;
                     for (int i = 0; i < 3; ++i)
                     {
-                        spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 200, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i));
+                        spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 200, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i, ai1: 0));
                     }
 
                     foreach (var s in spawns)
                     {
-                        if (Main.npc[s].netID == ModContent.NPCType<SupremeCnidrionClone>()) Main.npc[s].ai[1] = 1;
+						if (Main.npc[s].netID == ModContent.NPCType<SupremeCnidrionClone>()) Main.npc[s].ai[1] = 1f;
                     }
                 }
 
 				if (phase == 4)
 				{
 					Talk("Time to get serious!");
+					NPC.alpha = 255;
+					NPC.damage = targetDamage_nonPredictiveCharge;
+					NPC.immortal = false;
 				}
 			}
 		}
@@ -174,7 +179,7 @@ namespace CalamityTweaks.Enemies
 		{
 			NPC.velocity = Vector2.Zero;
 
-			int fullAttackDuration = ticksPerBolt * (boltCount-1);
+            int fullAttackDuration = ticksPerBolt * (boltCount-1);
 			if (currentAttackTickCounter > fullAttackDuration)
 			{
 				currentAttackTickCounter = 0;
@@ -209,7 +214,7 @@ namespace CalamityTweaks.Enemies
 
 		protected void WaterDeathHailAttack(float safeSpaceSize, float maxFirstRoll, int ticksPerBolt, int boltCount, int delayTicks) //boltCount must be even.
 		{
-			int fullAttackDuration = boltCount / 2 * ticksPerBolt;
+            int fullAttackDuration = boltCount / 2 * ticksPerBolt;
             NPC.velocity = Vector2.Zero;
             if (currentAttackTickCounter < delayTicks) return;
 
@@ -233,7 +238,7 @@ namespace CalamityTweaks.Enemies
 				Vector2 direction = new Vector2(0f, 1f);
 
                 direction.Normalize();
-                float speed = 14f;
+                float speed = 6f;
                 int type = ProjectileID.PinkLaser; //TODO: change it to something watery
                 int damage = targetDamage_waterDeathhail;
 
@@ -267,8 +272,8 @@ namespace CalamityTweaks.Enemies
 		protected int ticksSinceSpawn = 0;
 		protected List<int> spawns = new List<int>();
 
-		protected Vector2 currentChargeVelocity;
-
+		protected Vector2 deathHailTargetPos;
+        protected Vector2 currentChargeVelocity;
 		protected Player targetPlayer;
 
 		//Damage values are designed for Master Death mode originally (first number) and are scaled appropriately (second number, the multiplier) 
@@ -287,7 +292,6 @@ namespace CalamityTweaks.Enemies
     public class SupremeCnidrionClone : SupremeCnidrion
 	{
         protected float orbitRadianOffset;
-		protected NPC ownerNpc = null;
 
         public override void SetStaticDefaults()
         {
@@ -321,13 +325,13 @@ namespace CalamityTweaks.Enemies
             this.targetPlayer = Main.player[NPC.target];
 
 			ticksInCurrentPhase++;
-			bool isFreeMoving = NPC.ai[1] == 1f;
+			bool isFreeMoving = (NPC.ai[1] > 0);
 			if (isFreeMoving) NPC.damage = targetDamage_cloneCharge;
 
-			currentAttackTickCounter = ticksSinceSpawn % (isFreeMoving ? 140 : 60);
+			currentAttackTickCounter = ticksSinceSpawn % (isFreeMoving ? 200 : 120);
 			int attackType = (int)NPC.ai[0] % 3;
 
-			if (currentAttackTickCounter < 60)
+			if (currentAttackTickCounter < 120) //TODO: stop attacking when main one is performing water deathhail
 			{
 				if (attackType == 0) waterBoltSequence(3, 10, 0);
 				if (attackType == 1) waterBoltShotgun(5, 60, 40);

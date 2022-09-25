@@ -54,7 +54,7 @@ namespace CalamityTweaks.Enemies
 			NPC.defense = 150;
 			NPC.lifeMax = 5500000; 
 			NPC.knockBackResist = 0;			
-			NPC.value = Item.buyPrice(platinum: 50);
+			NPC.value = Item.buyPrice(platinum: 30);
 			NPC.aiStyle = -1;
 
             NPC.boss = true;
@@ -70,7 +70,8 @@ namespace CalamityTweaks.Enemies
 				.AddAttack(200, Attacks_WaterBolt)
 				.AddAttack(90, Attacks_PredictiveCharge)
 				.AddAttack(90, Attacks_PredictiveCharge)
-				.AddAttack(140, Attacks_WaterDeathHail);
+				.AddAttack(140, Attacks_WaterDeathHail)
+				.AddAttack(60, Attacks_DoNothing); //prevent cheap hits after deathhail
         }
 
 		public override void AI()
@@ -132,6 +133,11 @@ namespace CalamityTweaks.Enemies
 		{
             WaterDeathHailAttack(0.1f, 0.7f, 3, 80, 40, currentAttackTick);
         }
+
+		public void Attacks_DoNothing(int currentAttackTick)
+		{
+			//intentionally blank, used in pattern manager to delay attacks
+		}
 
 		public bool IsAnySpawnAlive()
 		{
@@ -321,7 +327,7 @@ namespace CalamityTweaks.Enemies
 			NPC.defense = 110;
 			NPC.lifeMax = 1500000;
 			NPC.knockBackResist = 0;
-			NPC.value = Item.buyPrice(platinum: 3);
+			NPC.value = Item.buyPrice(platinum: 1, gold: 50);
 			NPC.aiStyle = -1;
 
 			NPC.boss = true;
@@ -342,7 +348,7 @@ namespace CalamityTweaks.Enemies
 		public override void AI()
 		{
 			NPC.TargetClosestUpgraded(true);
-			NPC.FaceTarget();
+			if (!NPC.HasValidTarget) this.NPC.velocity.Y += 1;
 			this.targetPlayer = Main.player[NPC.target];
 
 			ticksInCurrentPhase++;
@@ -381,7 +387,7 @@ namespace CalamityTweaks.Enemies
 
 		public void Attacks_SpawnCharge(int currentAttackTick)
 		{
-			ChargeAttack(80, 200, 250, 1000, 0, currentAttackTick);
+			ChargeAttack(80, 200, 250, 1000, 0, currentAttackTick); 
         }
 		protected void waterBoltSequence(int projectileCount, int ticksPerBolt, int delayTicks, int totalDurationTicks, int currentAttackTick)
 		{

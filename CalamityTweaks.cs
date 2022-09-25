@@ -27,19 +27,82 @@ namespace CalamityTweaks.Enemies
 
         protected Vector2 deathHailTargetPos;
         protected Vector2 currentChargeVelocity;
-        protected Player targetPlayer;
+        protected Player targetPlayer;        
 
-        //Damage values are designed for Master Death mode originally (first number) and are scaled appropriately (second number, the multiplier) 
-        protected static int targetDamage_nonPredictiveCharge = (int)(1250 * 0.4);
-        protected static int targetDamage_predictiveCharge = (int)(950 * 0.4);
-        protected static int targetDamage_cloneCharge = (int)(850 * 0.4);
-        protected static int targetDamage_supremeWaterBolt_contact = (int)(860 * 0.2);
-        protected static int targetDamage_supremeWaterBolt_ascending = (int)(690 * 0.2);
-        protected static int targetDamage_waterTide = (int)(1250 * 0.2);
-        protected static int targetDamage_steamBreath = (int)(1250 * 0.2);
-        protected static int targetDamage_waterDeathhail = (int)(840 * 0.2);
-        protected static int targetDamage_predictiveWaterArrow = (int)(910 * 0.2);
+		public static class Damage //Damage values are designed for Master Death mode originally (first number) and are scaled appropriately (second number, the multiplier) 
+        {            
+            public static int NonPredictiveCharge = (int)(1250 * 0.4);
+            public static int PredictiveCharge = (int)(950 * 0.4);
+            public static int CloneCharge = (int)(850 * 0.4);
+            public static int SupremeWaterBolt = (int)(860 * 0.2);
+            public static int SupremeWaterBoltAscending = (int)(690 * 0.2);
+            public static int WaterTide = (int)(1250 * 0.2);
+            public static int SteamBreath = (int)(1250 * 0.2);
+            public static int WaterDeathHail = (int)(840 * 0.2);
+            public static int PredictiveWaterArrow = (int)(910 * 0.2);
+        }
 
+		public static class Numbers
+		{
+			public static float BossPhase2LifePct = 60;
+			public static float BossPhase3LifePct = 30;
+			public static int   BossPhase4_InvisibilityDispelTicks = 300;
+
+			public static class NonPredictiveCharge
+			{
+                public static int   Ticks = 80;
+                public static float MinDist = 600f;
+                public static float PlayerOffset = 400f;
+                public static float MaxDist = 1800f;
+                public static float Predictiveness = 0.0f;
+            }
+
+			public static class SupremeWaterBoltSpray
+			{
+                public static int   ProjectileCount = 50;
+				public static float MaxSpreadRadians = 20 * MathF.PI / 180;
+                public static int   TicksPerBolt = 4;
+				public static float ProjectileSpeed = 14f;
+				public static int   TicksTotal = ProjectileCount * TicksPerBolt; //don't touch it
+            }
+
+            public static class PredictiveCharge
+            {
+                public static int   Ticks = 90;
+                public static float MinDist = 400f;
+                public static float PlayerOffset = 300f;
+                public static float MaxDist = 1800f;
+                public static float Predictiveness = 1.5f;
+            }
+
+            public static class WaterDeathHail
+			{
+				public static float SafeSpaceSize = 0.1f;
+				public static float MaxFirstRoll = 0.7f;
+                public static int   ProjectilePairs = 40;
+                public static int	TicksPerPair = 3;
+                public static float	ProjectileSpeed = 4.5f;
+                public static int	PreIdleTicks = 40;
+                public static int	PostIdleTicks = 120;
+                public static int	TicksTotal = TicksPerPair * ProjectilePairs;
+            }
+
+            public static class Clones
+			{
+				public static int   Phase2Count = 3;
+				public static int   Phase3Count = 3;
+				public static float OrbitRadius = 300f;
+				public static int	OrbitIntervalTicks = 400;
+				public static float OrbitSeparationRadians = (360f / Phase2Count) / 180f * MathF.PI;
+			}
+
+			public static class Talk
+			{
+				public static byte  R = 150;
+				public static byte  G = 200;
+				public static byte  B = 150;
+			}
+        }
 
         public override void SetStaticDefaults()
 		{
@@ -50,7 +113,7 @@ namespace CalamityTweaks.Enemies
 		{
 			NPC.width = 365;
 			NPC.height = 236;
-			NPC.damage = targetDamage_nonPredictiveCharge;
+			NPC.damage = Damage.NonPredictiveCharge;
 			NPC.defense = 150;
 			NPC.lifeMax = 5500000; 
 			NPC.knockBackResist = 0;			
@@ -63,15 +126,16 @@ namespace CalamityTweaks.Enemies
             NPC.noTileCollide = true;
 
 			pm_phase1
-				.AddAttack(80, Attacks_NonPredictiveCharge)
-				.AddAttack(80, Attacks_NonPredictiveCharge)
-				.AddAttack(80, Attacks_NonPredictiveCharge)
-				.AddAttack(80, Attacks_NonPredictiveCharge)
-				.AddAttack(200, Attacks_WaterBolt)
-				.AddAttack(90, Attacks_PredictiveCharge)
-				.AddAttack(90, Attacks_PredictiveCharge)
-				.AddAttack(140, Attacks_WaterDeathHail)
-				.AddAttack(120, Attacks_DoNothing); //prevent cheap hits after deathhail
+				.AddAttack(Numbers.NonPredictiveCharge.Ticks, Attacks_NonPredictiveCharge)
+				.AddAttack(Numbers.NonPredictiveCharge.Ticks, Attacks_NonPredictiveCharge)
+				.AddAttack(Numbers.NonPredictiveCharge.Ticks, Attacks_NonPredictiveCharge)
+				.AddAttack(Numbers.NonPredictiveCharge.Ticks, Attacks_NonPredictiveCharge)
+				.AddAttack(Numbers.SupremeWaterBoltSpray.TicksTotal, Attacks_WaterBolt)
+				.AddAttack(Numbers.PredictiveCharge.Ticks, Attacks_PredictiveCharge)
+				.AddAttack(Numbers.PredictiveCharge.Ticks, Attacks_PredictiveCharge)
+				.AddAttack(Numbers.WaterDeathHail.PreIdleTicks, Attacks_DoNothing)
+				.AddAttack(Numbers.WaterDeathHail.TicksTotal, Attacks_WaterDeathHail)
+				.AddAttack(Numbers.WaterDeathHail.PostIdleTicks, Attacks_DoNothing); //prevent cheap hits after deathhail
         }
 
 		public override void AI()
@@ -81,9 +145,9 @@ namespace CalamityTweaks.Enemies
             this.targetPlayer = Main.player[NPC.target];
             ticksInCurrentPhase++;
 
-			float lifePct = NPC.GetLifePercent();
-			if (lifePct > 0.60) SetTargetPhase(1);
-			else if (lifePct > 0.30) SetTargetPhase(2);
+			float lifePct = NPC.GetLifePercent() * 100;
+			if (lifePct > Numbers.BossPhase2LifePct) SetTargetPhase(1);
+			else if (lifePct > Numbers.BossPhase3LifePct) SetTargetPhase(2);
 			else
 			{
 				if (currBossPhase == 3)
@@ -102,15 +166,15 @@ namespace CalamityTweaks.Enemies
 			if (currBossPhase == 3 && NPC.HasValidTarget) NPC.position = targetPlayer.Center; //HACK: follow player to prevent despawning
 			if (currBossPhase == 4)
 			{
-				if (ticksInCurrentPhase < 300)
+				if (ticksInCurrentPhase < Numbers.BossPhase4_InvisibilityDispelTicks)
 				{
-					float visibilityProgress = ticksInCurrentPhase / 300f;
+					float visibilityProgress = (float)ticksInCurrentPhase / Numbers.BossPhase4_InvisibilityDispelTicks;
 					NPC.alpha = (int)(255f * (1 - visibilityProgress));
 				}
-				else if (ticksInCurrentPhase == 300)
+				else if (ticksInCurrentPhase == Numbers.BossPhase4_InvisibilityDispelTicks)
 				{
                     NPC.alpha = 0;
-                    NPC.damage = targetDamage_nonPredictiveCharge;
+                    NPC.damage = Damage.NonPredictiveCharge;
                     NPC.immortal = false;
                 }
 				else
@@ -125,34 +189,35 @@ namespace CalamityTweaks.Enemies
 
 		private void HandleSpawnsOrbiting()
         {
-            int orbitTick = ticksSinceSpawn % 600;
+            int orbitTick = ticksSinceSpawn % Numbers.Clones.OrbitIntervalTicks;
             for (int i = 0; i < spawns.Count; ++i)
             {
                 if (Main.npc[spawns[i]].netID != ModContent.NPCType<SupremeCnidrionClone>()) continue;
 
-                float currentAngle = 2 * i * MathF.PI / 3.0f + orbitTick / 300.0f * MathF.PI;
-                Main.npc[spawns[i]].position = this.NPC.position + new Vector2(300.0f * MathF.Sin(currentAngle), 300.0f * MathF.Cos(currentAngle));
+				float orbitProgress = (float)orbitTick / Numbers.Clones.OrbitIntervalTicks;
+				float currentAngle = 2 * MathF.PI * orbitProgress + i * Numbers.Clones.OrbitSeparationRadians;
+                Main.npc[spawns[i]].position = this.NPC.position + new Vector2(Numbers.Clones.OrbitRadius * MathF.Sin(currentAngle), Numbers.Clones.OrbitRadius * MathF.Cos(currentAngle));
             }
         }
 
         public void Attacks_NonPredictiveCharge(int currentAttackTick)
 		{
-			ChargeAttack(80, 600, 400, 2000, 0, currentAttackTick);
+            ChargeAttack(Numbers.NonPredictiveCharge.Ticks, Numbers.NonPredictiveCharge.MinDist, Numbers.NonPredictiveCharge.PlayerOffset, Numbers.NonPredictiveCharge.MaxDist, Numbers.NonPredictiveCharge.Predictiveness, currentAttackTick);
         }
 		
 		public void Attacks_WaterBolt(int currentAttackTick)
 		{
-            WaterBoltAttack(50, (20 * MathF.PI / 180), 4, currentAttackTick);
+            WaterBoltAttack(Numbers.SupremeWaterBoltSpray.ProjectileCount, Numbers.SupremeWaterBoltSpray.MaxSpreadRadians, Numbers.SupremeWaterBoltSpray.TicksPerBolt, currentAttackTick);
         }
 
 		public void Attacks_PredictiveCharge(int currentAttackTick)
 		{
-            ChargeAttack(90, 400, 300, 1800, 1.5f, currentAttackTick);
+            ChargeAttack(Numbers.PredictiveCharge.Ticks, Numbers.PredictiveCharge.MinDist, Numbers.PredictiveCharge.PlayerOffset, Numbers.PredictiveCharge.MaxDist, Numbers.PredictiveCharge.Predictiveness, currentAttackTick);
         }
 
 		public void Attacks_WaterDeathHail(int currentAttackTick)
 		{
-            WaterDeathHailAttack(0.1f, 0.7f, 3, 80, 40, currentAttackTick);
+            WaterDeathHailAttack(Numbers.WaterDeathHail.SafeSpaceSize, Numbers.WaterDeathHail.MaxFirstRoll, Numbers.WaterDeathHail.TicksPerPair, Numbers.WaterDeathHail.ProjectilePairs, currentAttackTick);
         }
 
 		public void Attacks_DoNothing(int currentAttackTick) //intentionally blank, used in pattern manager to delay attacks
@@ -184,7 +249,7 @@ namespace CalamityTweaks.Enemies
 					Talk("Your performance is surprising. Given how much I worked on myself, you are a powerful opponent. I can respect that, but I have a few tricks too.");
 					if (Main.netMode != NetmodeID.MultiplayerClient)
 					{
-						for (int i = 0; i < 3; ++i)
+						for (int i = 0; i < Numbers.Clones.Phase2Count; ++i)
 						{
 							spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 100, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: i, ai1: 0));
 						}						
@@ -197,7 +262,7 @@ namespace CalamityTweaks.Enemies
 					NPC.immortal = true;
 					NPC.alpha = 255; //set to transparent
 					NPC.damage = 0;
-                    for (int i = 0; i < 3; ++i)
+                    for (int i = 0; i < Numbers.Clones.Phase3Count; ++i)
                     {
                         spawns.Add(NPC.NewNPC(NPC.GetSource_FromAI(), (int)NPC.position.X + i * 200, (int)NPC.position.Y, ModContent.NPCType<SupremeCnidrionClone>(), 1, ai0: 3+i, ai1: 1));
                     }
@@ -263,32 +328,29 @@ namespace CalamityTweaks.Enemies
 
 					direction = new Vector2(radius * MathF.Cos(projectileAngle), radius * MathF.Sin(projectileAngle));
                     direction.Normalize();
-                    float speed = 14f;
                     int type = ProjectileID.PinkLaser; //TODO: change it to something watery
-					int damage = targetDamage_supremeWaterBolt_contact;
-                    Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
+					int damage = Damage.SupremeWaterBolt;
+                    Projectile.NewProjectile(source, position, direction * Numbers.SupremeWaterBoltSpray.ProjectileSpeed, type, damage, 0f, Main.myPlayer);
                 }
             }
 		}
 
-		protected void WaterDeathHailAttack(float safeSpaceSize, float maxFirstRoll, int ticksPerBolt, int boltCount, int delayTicks, int currentAttackTick) //boltCount must be even.
+		protected void WaterDeathHailAttack(float safeSpaceSize, float maxFirstRoll, int ticksPerBolt, int boltPairs, int currentAttackTick)
 		{
-            int fullAttackDuration = boltCount / 2 * ticksPerBolt;
+            int fullAttackDuration = boltPairs * ticksPerBolt;
             NPC.velocity = Vector2.Zero;
-            if (currentAttackTick < delayTicks) return;
 
-			int attackCycleTick = currentAttackTick - delayTicks;
-			if (attackCycleTick % ticksPerBolt != 0) return;
-
-			if (currentAttackTick == delayTicks)
+			int attackCycleTick = currentAttackTick;
+			if (attackCycleTick == 1)
 			{
-				Random r = new();
-				this.NPC.ai[0] = (float)r.NextDouble() * maxFirstRoll;
-			}
+                Random r = new();
+                this.NPC.ai[0] = (float)r.NextDouble() * maxFirstRoll;
+            }
+			if (attackCycleTick % ticksPerBolt != 0) return;			
 
-			int projectileNumber = attackCycleTick / ticksPerBolt;
-			float leftProjectileSpacing = 1920 * NPC.ai[0] / (boltCount*0.5f);
-			float rightProjectileSpacing = 1920 * (1 - NPC.ai[0] - safeSpaceSize) / (boltCount * 0.5f);
+			int currentProjectileNumber = attackCycleTick / ticksPerBolt;
+			float leftProjectileSpacing = 1920 * NPC.ai[0] / boltPairs;
+			float rightProjectileSpacing = 1920 * (1 - NPC.ai[0] - safeSpaceSize) / boltPairs;
 
             if (NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)
             {
@@ -297,13 +359,13 @@ namespace CalamityTweaks.Enemies
 				Vector2 direction = new(0f, 1f);
 
                 direction.Normalize();
-                float speed = 4.5f;
+                float speed = Numbers.WaterDeathHail.ProjectileSpeed;
                 int type = ProjectileID.PinkLaser; //TODO: change it to something watery
-                int damage = targetDamage_waterDeathhail;
+                int damage = Damage.WaterDeathHail;
 				Vector2 adjDir = direction * speed;
 
-				Vector2 leftOffset = new(leftProjectileSpacing * projectileNumber, 0f);
-				Vector2 rightOffset = new(1920f - rightProjectileSpacing * projectileNumber, 0f);
+				Vector2 leftOffset = new(leftProjectileSpacing * currentProjectileNumber, 0f);
+				Vector2 rightOffset = new(1920f - rightProjectileSpacing * currentProjectileNumber, 0f);
                 Projectile.NewProjectile(source, position + leftOffset, adjDir, type, damage, 0f, Main.myPlayer);
                 Projectile.NewProjectile(source, position + rightOffset, adjDir, type, damage, 0f, Main.myPlayer);
             }
@@ -315,13 +377,13 @@ namespace CalamityTweaks.Enemies
             {
 				//string text = Language.GetTextValue("Mods.ExampleMod.NPCTalk", Lang.GetNPCNameValue(npc.type), message);
 				string text = message;
-                Main.NewText(text, 150, 250, 150);
+                Main.NewText(text, Numbers.Talk.R, Numbers.Talk.G, Numbers.Talk.B);
             }
             else
             {
 				//Terraria.Localization.NetworkText text = Terraria.Localization.NetworkText.FromKey("Mods.ExampleMod.NPCTalk", Lang.GetNPCNameValue(npc.type), message);
 				Terraria.Localization.NetworkText text = Terraria.Localization.NetworkText.FromLiteral(message);
-                Terraria.Chat.ChatHelper.BroadcastChatMessage(text, new Color(150, 250, 150));
+                Terraria.Chat.ChatHelper.BroadcastChatMessage(text, new Color(Numbers.Talk.R, Numbers.Talk.G, Numbers.Talk.B));
             }
         }
     }
@@ -390,7 +452,7 @@ namespace CalamityTweaks.Enemies
 
 			if (isFreeMoving)
 			{
-				NPC.damage = targetDamage_cloneCharge;
+				NPC.damage = Damage.CloneCharge;
                 pm_phase2.Advance(1);
                 pm_phase2.Attack();
             }
@@ -437,7 +499,7 @@ namespace CalamityTweaks.Enemies
                 direction.Normalize();
                 float speed = 14f;
                 int type = ProjectileID.PinkLaser; //TODO: change it to something watery
-                int damage = targetDamage_supremeWaterBolt_contact;
+                int damage = Damage.SupremeWaterBolt;
                 Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
             }
         }
@@ -460,7 +522,7 @@ namespace CalamityTweaks.Enemies
 					direction.Normalize();
 					float speed = 14f;
 					int type = ProjectileID.PinkLaser; //TODO: change it to something watery
-					int damage = targetDamage_supremeWaterBolt_contact;
+					int damage = Damage.SupremeWaterBolt;
 					Projectile.NewProjectile(source, position, direction * speed, type, damage, 0f, Main.myPlayer);
 				}
             }         
@@ -483,7 +545,7 @@ namespace CalamityTweaks.Enemies
 					direction2.Normalize();
 					float speed = 14f;
 					int type = ProjectileID.PinkLaser; //TODO: change it to something watery
-					int damage = targetDamage_supremeWaterBolt_contact;
+					int damage = Damage.SupremeWaterBolt;
 					Projectile.NewProjectile(source, position, direction2 * speed, type, damage, 0f, Main.myPlayer);
 				}
             }

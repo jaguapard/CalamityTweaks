@@ -21,7 +21,7 @@ namespace CalamityTweaks
 				base.SetStaticDefaults();
 
 				DisplayName.SetDefault("Seahorse Terror Beacon");
-				Tooltip.SetDefault("Summons the Thiccc Supreme Seahorse\nDon't stray too far away and pray you're able\nNot consumable");
+				Tooltip.SetDefault("Summons the Thiccc Supreme Seahorse\nDon't stray too far away and pray you're strong enough\nNot consumable");
 			}
 
 			public override void SetDefaults()
@@ -36,7 +36,7 @@ namespace CalamityTweaks
 			public override void AddRecipes()
 			{
                 var CalamityMod = ModLoader.GetMod("CalamityMod");
-                Recipe recipe = CreateRecipe() //TODO: change it to Seahorse Terror Beacon
+                Recipe recipe = CreateRecipe()
                 .AddIngredient(CalamityMod, "ShadowspecBar", 10)
                 //.AddIngredient(CalamityMod, "AmidasSpark") //TODO: find real item name for Amidas' Spark
                 .Register();

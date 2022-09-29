@@ -10,9 +10,14 @@ namespace CalamityTweaks.Helpers
             return val >= min && val <= max;
         }
 
-        public static Vector2 toPolar(Vector2 pos)
+        public static Vector2 toPolar(Vector2 cartesianCoords)
         {
-            return new(pos.Length(), MathF.Atan2(pos.Y, pos.X));
+            return new(cartesianCoords.Length(), MathF.Atan2(cartesianCoords.Y, cartesianCoords.X));
+        }
+
+        public static Vector2 toCartesian(Vector2 polarCoords)
+        {
+            return new(polarCoords.X * MathF.Cos(polarCoords.Y), polarCoords.X * MathF.Sin(polarCoords.Y));
         }
     }
 }

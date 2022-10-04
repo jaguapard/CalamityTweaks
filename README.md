@@ -19,6 +19,13 @@ Evading attack with a shield or sash dash will no longer trigger any debuffs and
 
 Fixed Draconic Elixir not giving 16 defense as stated on tooltip
 
+All Last Prism type weapons no longer stop firing after 60 seconds (they keep firing until you release)
+
+# Questionable changes
+This changes are still undecided
+
+Defeating Exo Mechs or Scal will now buff the other boss and affect it's drops. It is made to make equipment craftable after only one of them is defeated more useful.
+
 # Accessories
 All "raining X when hit" now deal 200% more damage. Additionaly, they will deal 1% more damage for every damage point you take (calculated before defense and DR).
 
@@ -37,6 +44,13 @@ Crit multiplier reduced from 2.25 to 2
 Regenerator: defense increased from 10 to 20, regen bonus from 12 to 20
 
 The Camper: standing still now reduces damage you take by 33% and defense damage by 66%.
+
+# New weapons
+## Gamma Disintegration Crystal
+Post-Exo Mechs and Scal magic weapons, an upgrade to Yharim's Crystal, themed around Thanatos' Gamma Disintegration beam. Crafted with Yharim's Crystal and Shadowspec Bars at Draedon's Forge. Works similarly to Yharim's Crystal, but also fires auxilarry lasers perpendicular to main ray when fully charged
+
+## Brimstone machine gun
+Post Scal magic weapon that quickly fires Brimstone Hellblasts, Darts and occasionally, Brimstone Gigablasts that split into more darts upon hitting enemies or tiles (all of this resemble Scal's attacks)
 
 # Existing enemies
 ## Supreme Calamitas

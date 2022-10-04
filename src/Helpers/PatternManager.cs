@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CalamityTweaks.Helpers
 {
-    public static class Funcs
-    {        public static bool InRange(int val, int min, int max)
-        {
-            return val >= min && val <= max;
-        }
-    }
-
     public delegate void PatternAttackDelegate(int currentAttackTick);
     public class PatternAttack
     {

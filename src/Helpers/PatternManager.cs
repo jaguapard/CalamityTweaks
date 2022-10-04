@@ -63,7 +63,7 @@ namespace CalamityTweaks.Helpers
             int i = 0;
             int oldAttackIndex = currentAttackIndex;
 
-            while (!Funcs.InRange(currentPatternTick, attacks[currentAttackIndex].startTick, attacks[currentAttackIndex].EndTick) && i < maxSteps)
+            while (i < maxSteps && !Funcs.InRange(currentPatternTick, attacks[currentAttackIndex].startTick, attacks[currentAttackIndex].EndTick))
             {
                 currentAttackIndex++;
                 currentAttackIndex %= attacks.Count;

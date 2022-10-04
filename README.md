@@ -52,6 +52,9 @@ Post-Exo Mechs and Scal magic weapons, an upgrade to Yharim's Crystal, themed ar
 ## Brimstone machine gun
 Post Scal magic weapon that quickly fires Brimstone Hellblasts, Darts and occasionally, Brimstone Gigablasts that split into more darts upon hitting enemies or tiles (all of this resemble Scal's attacks)
 
+## Soul Seeker staff
+Post Scal summoner weapon that summons Soul Seekers that fire Brimstone Darts at enemies that inflict Brimstone Flames debuff
+
 # Existing enemies
 ## Supreme Calamitas
 Increased damage of all attacks by 15%, HP by 20%, Brothers, Moons and Soul Seekers unaffected. 

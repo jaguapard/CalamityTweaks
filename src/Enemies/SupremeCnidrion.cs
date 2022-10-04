@@ -12,6 +12,7 @@ namespace CalamityTweaks.Enemies
     using System;
     using Terraria.ID;
     using Terraria.ModLoader;
+    using System.Numerics;
 
     [AutoloadBossHead]
     public class SupremeCnidrion : ModNPC
@@ -84,7 +85,19 @@ namespace CalamityTweaks.Enemies
                 public static int PostIdleTicks = 120;
                 public static int TicksTotal = TicksPerPair * ProjectilePairs;
             }
+            
+            public static class WaterArrow
+            {
+                public static int Volleys = 5;
+                public static int TicksPerVolley = 90;
+                public static int ArrowPairsPerVolley = 2;
+                public static float ArrowMaxSeparationRadians = 90 * MathF.PI / 180;
+                public static float Predictiveness = 1f;
+                public static float Speed = 10f;
 
+                public static Vector2 ArrowSpawnOffset = new(0, 300);
+                public static int TicksDuration = Volleys * TicksPerVolley;                
+            }
             public static class Clones
             {
                 public static int Phase2Count = 3;
@@ -372,6 +385,32 @@ namespace CalamityTweaks.Enemies
                 Vector2 rightOffset = new(1920f - rightProjectileSpacing * currentProjectileNumber, 0f);
                 Projectile.NewProjectile(source, position + leftOffset, adjDir, type, damage, 0f, Main.myPlayer);
                 Projectile.NewProjectile(source, position + rightOffset, adjDir, type, damage, 0f, Main.myPlayer);
+            }
+        }
+
+        public void WaterArrowAttack(int currentAttackTick)
+        {
+            if (currentAttackTick % Numbers.WaterArrow.TicksPerVolley != 0) return;
+            if (!(NPC.HasValidTarget && Main.netMode != NetmodeID.MultiplayerClient)) return;
+
+            float speed = Numbers.WaterArrow.Speed;
+            var source = NPC.GetSource_FromAI();
+
+            Vector2 polarOffset = Helpers.Funcs.toPolar(Numbers.WaterArrow.ArrowSpawnOffset);
+            float pathLength = polarOffset.X;
+            float ticksToReach = pathLength / speed;
+            Vector2 predictionOffsetPerPair = (targetPlayer.velocity * ticksToReach * Numbers.WaterArrow.Predictiveness) / Numbers.WaterArrow.ArrowPairsPerVolley;
+            Vector2 arrowSpawnPos = targetPlayer.NPC.Center + Numbers.WaterArrow.ArrowSpawnOffset;
+            Vector2 targetDir = targetPlayer.NPC.Center - arrowSpawnPos;
+            targetDir.Normalize();
+
+            int type = ProjectileID.PinkLaser; //TODO: change it to something watery
+            int damage = Damage.PredictiveWaterArrow;
+
+            for (int i = 0; i < Numbers.WaterArrow.ArrowPairsPerVolley; ++i)
+            {
+                Vector2 currOffset = predictionOffsetPerPair * i;
+                Projectile.NewProjectile(source, arrowSpawnPos, targetDir*speed, type, damage, 0f, Main.myPlayer);
             }
         }
 

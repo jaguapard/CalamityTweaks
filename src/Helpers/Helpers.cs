@@ -1,8 +1,8 @@
-﻿using System.Numerics;
-using System;
-
-namespace CalamityTweaks.Helpers
+﻿namespace CalamityTweaks.Helpers
 {
+    using Microsoft.Xna.Framework;
+    using System;
+
     public static class Funcs
     {
         public static bool InRange(int val, int min, int max)

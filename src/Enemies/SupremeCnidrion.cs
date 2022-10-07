@@ -1,9 +1,8 @@
 ﻿using Terraria;
+using Microsoft.Xna.Framework;
 using System;
 using Terraria.ModLoader;
-using Microsoft.Xna.Framework;
 using Terraria.ID;
-using System.Collections.Generic;
 
 namespace CalamityTweaks.Enemies
 {
@@ -12,7 +11,6 @@ namespace CalamityTweaks.Enemies
     using System;
     using Terraria.ID;
     using Terraria.ModLoader;
-    using System.Numerics;
 
     [AutoloadBossHead]
     public class SupremeCnidrion : ModNPC
@@ -400,8 +398,8 @@ namespace CalamityTweaks.Enemies
             float pathLength = polarOffset.X;
             float ticksToReach = pathLength / speed;
             Vector2 predictionOffsetPerPair = (targetPlayer.velocity * ticksToReach * Numbers.WaterArrow.Predictiveness) / Numbers.WaterArrow.ArrowPairsPerVolley;
-            Vector2 arrowSpawnPos = targetPlayer.NPC.Center + Numbers.WaterArrow.ArrowSpawnOffset;
-            Vector2 targetDir = targetPlayer.NPC.Center - arrowSpawnPos;
+            Vector2 arrowSpawnPos = targetPlayer.Center + Numbers.WaterArrow.ArrowSpawnOffset;
+            Vector2 targetDir = targetPlayer.Center - arrowSpawnPos;
             targetDir.Normalize();
 
             int type = ProjectileID.PinkLaser; //TODO: change it to something watery

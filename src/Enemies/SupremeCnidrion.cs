@@ -92,6 +92,7 @@ namespace CalamityTweaks.Enemies
                 public static float ArrowMaxSeparationRadians = 90 * MathF.PI / 180;
                 public static float Predictiveness = 1f;
                 public static float Speed = 10f;
+                public static int PostIdleTicks = 40;
 
                 public static Vector2 ArrowSpawnOffset = new(0, 300);
                 public static int TicksDuration = Volleys * TicksPerVolley;                
@@ -150,7 +151,9 @@ namespace CalamityTweaks.Enemies
                 .AddAttack(Numbers.PredictiveCharge.Ticks, Attacks_PredictiveCharge)
                 .AddAttack(Numbers.WaterDeathHail.PreIdleTicks, Attacks_DoNothing)
                 .AddAttack(Numbers.WaterDeathHail.TicksTotal, Attacks_WaterDeathHail)
-                .AddAttack(Numbers.WaterDeathHail.PostIdleTicks, Attacks_DoNothing); //prevent cheap hits after deathhail
+                .AddAttack(Numbers.WaterDeathHail.PostIdleTicks, Attacks_DoNothing) //prevent cheap hits after deathhail
+                .AddAttack(Numbers.WaterArrow.TicksDuration, Attacks_WaterArrow)
+                .AddAttack(Numbers.WaterArrow.PostIdleTicks, Attacks_DoNothing);
         }
 
         public override void AI()
@@ -233,6 +236,11 @@ namespace CalamityTweaks.Enemies
         public void Attacks_WaterDeathHail(int currentAttackTick)
         {
             WaterDeathHailAttack(Numbers.WaterDeathHail.SafeSpaceSize, Numbers.WaterDeathHail.MaxFirstRoll, Numbers.WaterDeathHail.TicksPerPair, Numbers.WaterDeathHail.ProjectilePairs, currentAttackTick);
+        }
+
+        public void Attacks_WaterArrow(int currentAttackTick)
+        {
+            WaterArrowAttack(currentAttackTick);
         }
 
         public void Attacks_DoNothing(int currentAttackTick) //intentionally blank, used in pattern manager to delay attacks

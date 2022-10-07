@@ -94,7 +94,7 @@ namespace CalamityTweaks.Enemies
                 public static float Speed = 10f;
                 public static int PostIdleTicks = 40;
 
-                public static Vector2 ArrowSpawnOffset = new(0, 300);
+                public static Vector2 ArrowSpawnOffset = new(0, -300);
                 public static int TicksDuration = Volleys * TicksPerVolley;                
             }
             public static class Clones
@@ -407,8 +407,6 @@ namespace CalamityTweaks.Enemies
             float ticksToReach = pathLength / speed;
             Vector2 predictionOffsetPerPair = (targetPlayer.velocity * ticksToReach * Numbers.WaterArrow.Predictiveness) / Numbers.WaterArrow.ArrowPairsPerVolley;
             Vector2 arrowSpawnPos = targetPlayer.Center + Numbers.WaterArrow.ArrowSpawnOffset;
-            Vector2 targetDir = targetPlayer.Center - arrowSpawnPos;
-            targetDir.Normalize();
 
             int type = ProjectileID.PinkLaser; //TODO: change it to something watery
             int damage = Damage.PredictiveWaterArrow;
@@ -416,7 +414,8 @@ namespace CalamityTweaks.Enemies
             for (int i = 0; i < Numbers.WaterArrow.ArrowPairsPerVolley; ++i)
             {
                 Vector2 currOffset = predictionOffsetPerPair * i;
-                Projectile.NewProjectile(source, arrowSpawnPos, targetDir*speed, type, damage, 0f, Main.myPlayer);
+                currOffset.Normalize();
+                Projectile.NewProjectile(source, arrowSpawnPos, currOffset*speed, type, damage, 0f, Main.myPlayer);
             }
         }
 

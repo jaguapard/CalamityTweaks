@@ -81,7 +81,6 @@ namespace CalamityTweaks.Enemies
             if (pm_phase1.IsEmpty())
             {
                 int attackType = (int)NPC.ai[0] % 3;
-                Talk(attackType.ToString());
                 if (attackType == 0)
                 {
                     pm_phase1.AddAttack(CloneNumbers.WaterBoltSequence.TicksDuration, Attacks_WaterBoltSequence);

@@ -30,7 +30,7 @@ All Last Prism type weapons no longer stop firing after 60 seconds (they keep fi
 Add some way of recieving Souls of Light quickly, like Souls of Night by smashing altars
 
 ## Recipes
-Some of the recipes in Calamity Mod are obnoxiously long and frustruating. For example: Elemental Axe - a post-Moon Lord summoner weapon, requires you to grind Slime Queen, Aquatic Scourge, shark fins, Dark Casters, etc. At this stage, it's nothing more than a chore and no challenge at this stage. Calamity Tweaks' solution to this: simplify the recipes, so they would only require very basic and common materials, without disrupting their tiers. Most crafting recipes will low-tier items replaced by following materials. The aim of this change is not to trivialize crafting, but to remove ridiculous situations, like having to scour entire world for one of the tens of pre-hardmode things that are a part of a huge crafting tree for an end game weapon.
+Some of the recipes in Calamity Mod are obnoxiously long and frustruating. For example: Elemental Axe - a post-Moon Lord summoner weapon, requires you to grind Slime Queen, Aquatic Scourge, shark fins, Dark Casters, etc. At this stage, it's nothing more than a chore and provides no challenge or fun. Calamity Tweaks' solution to this: simplify the recipes, so they would only require very basic and common materials, without disrupting their tiers. Most crafting recipes will low-tier items replaced by following materials. The aim of this change is not to trivialize crafting, but to remove ridiculous situations, like having to scour entire world for one of the tens of pre-hardmode things that are a part of a huge crafting tree for an end game weapon.
 
 Post-EoW/BoC: Shadow Scales/Tissue Samples
 

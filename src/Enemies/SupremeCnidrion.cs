@@ -415,6 +415,7 @@ namespace CalamityTweaks.Enemies
             {
                 Vector2 currOffset = predictionOffsetPerPair * i;
                 currOffset.Normalize();
+                Vector2 radialOffset = currOffset*new Vector2(MathF.Cos()
                 Projectile.NewProjectile(source, arrowSpawnPos, currOffset*speed, type, damage, 0f, Main.myPlayer);
             }
         }

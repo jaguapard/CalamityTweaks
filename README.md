@@ -2,9 +2,15 @@
 
 Requires Calamity Mod to function properly. Design doc below describes current end goals to make (subject to change). Implemented ones will be marked with ✅ mark.
 
+# Foreword 
+
+Calamity Tweaks aims to expand the mechanics and adjust balancing of Calamity Mod. The main focus is on combat changes and reducing grinding
+
 # General Changes
 
-Adrenaline now reduces damage you take linearly as it's accumulated when hit. For example, if you have 65% adrenaline damage reduction and got hit when it is 50% full, you will receive 32.5% damage
+Everything is balanced and tested around enabled early hardmode rework
+
+Adrenaline now reduces damage you take linearly as it's accumulated when hit. For example, if you have 65% adrenaline damage reduction (vanilla Calamity with all 3 Adrenaline upgrades) and got hit when it is 50% full, you will receive 32.5% damage
 
 Rage now increses damage you deal if not triggered by up to 7% multiplicatively 
 
@@ -21,10 +27,82 @@ Fixed Draconic Elixir not giving 16 defense as stated on tooltip
 
 All Last Prism type weapons no longer stop firing after 60 seconds (they keep firing until you release)
 
+Add some way of recieving Souls of Light quickly, like Souls of Night by smashing altars
+
+## Recipes
+Some of the recipes in Calamity Mod are obnoxiously long and frustruating. For example: Elemental Axe - a post-Moon Lord summoner weapon, requires you to grind Slime Queen, Aquatic Scourge, shark fins, Dark Casters, etc. At this stage, it's nothing more than a chore and provides no challenge or fun. Calamity Tweaks' solution to this: simplify the recipes, so they would only require very basic and common materials, without disrupting their tiers. Most crafting recipes will low-tier items replaced by following materials. The aim of this change is not to trivialize crafting, but to remove ridiculous situations, like having to scour entire world for one of the tens of pre-hardmode things that are a part of a huge crafting tree for an end game weapon.
+
+Post-EoW/BoC: Shadow Scales/Tissue Samples
+
+Post-Hive Mind/Perforators: their samples
+
+Post-Queen Bee: Bee Wax
+
+Post-Skeletron: Bones
+
+Post-Slime God: Purified Gel
+
+Post-WoF: Cobalt/Palladium bars
+
+Post-1 mech: Mythril/Orichalum bars
+
+Post-2 mechs: Adamantite/Titanium bars
+
+Post-3 mechs: their Souls, Hallowed Bars, Chlorophyte bars
+
+Post-Calamitas Clone: Ashes of Calamity
+
+Post-Plantera: Living Shards, Ectoplasm
+
+Post-Leviathan and Anahita: ?
+
+Post-Astrum Aureus: ?
+
+Post-Golem: Scoria Bars
+
+Post-Plagubringer Goliath: ?
+
+Post-Ravager: ?
+
+Post-Duke Fishron: ?
+
+Post-Empress of Light: ?
+
+Post-Lunatic Cultist: celestial fragments
+
+Post-Astrum Deus: Astral Bars
+
+Post-Moon Lord: Luminite Bars, Unholy Essences, Phantoplasm
+
+Post-Dragonfolly: ?
+
+Post-Providence: Divine Geodes, Uelibloom Bars
+
+Post-Sentinels: their respective materials
+
+Post-Buffed Ravager: Bloodstone (Cores?)
+
+Post-Polterghast: Ruinous Souls
+
+Post-Old Duke: ?
+
+Post-DoG: Cosmilite Bars, Ascendant Spirit Essences
+
+Post-Yharon: Auric Tesla Bars, Yharon Soul Fragments
+
+Post-Scal: Ashes of Annihilation
+
+Post-Exo Mechs: Miracle Matter, Exo Prisms
+
+Endgame: Shadowspec Bars
+
+
+Removed plants from permanent health fruit-like power-ups
+
 # Questionable changes
 This changes are still undecided
 
-Defeating Exo Mechs or Scal will now buff the other boss and affect it's drops. It is made to make equipment craftable after only one of them is defeated more useful.
+Defeating Exo Mechs or Scal will now buff the other boss and affect it's drops. It is made to make equipment craftable after only one of them is defeated more useful. Currently, Exo Mechs equipment trivializes Scal fight, while Scal's drops are very situational or outright useless for some classes vs Exo Mechs.
 
 # Accessories
 All "raining X when hit" now deal 200% more damage. Additionaly, they will deal 1% more damage for every damage point you take (calculated before defense and DR).
@@ -72,7 +150,7 @@ Aflame: no longer disables your natural life regeneration, instead reducing it b
 
 Lecherous: orb health reduced from 184,445 to 120,000, increased Orb's speed and turn rate by 50%, reduced hearts dropped on death from 7 to 6
 
-Oblatory: self-damage chance increased from 25% to 100% and damage now proportionally scales with use time of the weapon, 60 use time = 5 health lost, 30 - 2.5, 15 - 1.25, etc. Any fractional damage is moved to next use.
+Oblatory: self-damage chance increased from 25% to 100% and damage now proportionally scales with use time of the weapon, 60 use time = 5 health lost, 30 - 2.5, 15 - 1.25, etc. Any fractional damage is moved to next use. Values are subject to change
 
 Ephemeral: reduced charge usage by 50% (??)
 
